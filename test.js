@@ -6,32 +6,8 @@ var Executor = require('./lib/Executor');
 
 var env = new Environment();
 
-
-var readline = require('readline');
-
-env.directive('get')
-	.param('name')
-	.param('prompt')
-	.param('default')
-	.param('limit')
-	.invoke(function(args, env, cb) {
-
-		var rl = readline.createInterface({
-			input 	: process.stdin,
-			output	: process.stdout
-		});
-
-		rl.setPrompt('');
-
-		args.prompt.stringValue(env, function(prompt) {
-			rl.question(prompt, function(answer) {
-				rl.close();
-				console.log("answer: " + answer);
-				cb();
-			});
-		});	
-		
-	});
+// Load all directives
+require('./lib/directives')(env);
 
 var plan = new Plan();
 
