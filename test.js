@@ -2,14 +2,36 @@ var N = require('./lib/nodes');
 var Directive = require('./lib/Directive');
 var Plan = require('./lib/Plan');
 var Environment = require('./lib/Environment');
+var Executor = require('./lib/Executor');
 
 var env = new Environment();
+
+
+var readline = require('readline');
 
 env.directive('get')
 	.param('name')
 	.param('prompt')
 	.param('default')
-	.param('limit');
+	.param('limit')
+	.invoke(function(args, env, cb) {
+
+		var rl = readline.createInterface({
+			input 	: process.stdin,
+			output	: process.stdout
+		});
+
+		rl.setPrompt('');
+
+		args.prompt.stringValue(env, function(prompt) {
+			rl.question(prompt, function(answer) {
+				rl.close();
+				console.log("answer: " + answer);
+				cb();
+			});
+		});	
+		
+	});
 
 var plan = new Plan();
 
@@ -40,3 +62,7 @@ plan.inputs
 			])
 		}
 	}));
+
+var exec = new Executor();
+
+exec.run(plan, env);
