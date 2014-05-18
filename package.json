@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "iniparser": "~1.0.5"
+  }
+}

@@ -48,9 +48,9 @@ end
 
 ## TODO
 
-  - [ ] Command line - decode template source
+  - [x] Command line - decode template source
   - [ ] Download git repository
-  - [ ] Work out user's github user
+  - [x] Work out user's github user
   - [ ] `tree` directive
   - [ ] `file` directive
   - [ ] `dir` directive
