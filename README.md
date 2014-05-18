@@ -45,3 +45,14 @@ end
   * actions (list of actions) (named block?)
   * if/else
   * iteration?
+
+## TODO
+
+  - [ ] Command line - decode template source
+  - [ ] Download git repository
+  - [ ] Work out user's github user
+  - [ ] `tree` directive
+  - [ ] `file` directive
+  - [ ] `dir` directive
+  - [ ] Parser
+  - [ ] Templating
