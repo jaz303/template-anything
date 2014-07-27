@@ -59,11 +59,8 @@ function doTemplate(templatePath, targetPath) {
 		var plan = new Plan();
 
 		plan.script
-			.add(new N.DirectiveCall('copy', {
-				positionalArgs: [
-					new N.Symbol('./'),
-					new N.Symbol('.')
-				]
+			.add(new N.DirectiveCall('tree', {
+				positionalArgs: []
 			}));
 
 		_runPlan(plan);
