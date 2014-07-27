@@ -3,6 +3,9 @@
     "iniparser": "~1.0.5",
     "mkdirp": "~0.5.0",
     "ncp": "~0.6.0",
-    "my-github-username": "~0.1.1"
+    "my-github-username": "~0.1.1",
+    "git-clone": "0.0.4",
+    "tmp": "0.0.24",
+    "rimraf": "~2.2.8"
   }
 }
