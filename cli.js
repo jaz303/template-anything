@@ -61,7 +61,13 @@ function doTemplate(templatePath, targetPath) {
 		plan.script
 			.add(new N.DirectiveCall('tree', {
 				positionalArgs: []
-			}));
+			}))
+			.add(new N.DirectiveCall('dir', {
+				positionalArgs: [new N.String("foo/bar/baz")]
+			}))
+			.add(new N.DirectiveCall('shell', {
+				positionalArgs: [new N.String("git init && git add . && git commit -m 'initial'")]
+			}))
 
 		_runPlan(plan);
 	}
