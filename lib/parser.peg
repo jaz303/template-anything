@@ -1,0 +1,32 @@
+_
+	= [ \r\n\t]*
+
+ident
+	= $( [a-z]i[a-z0-9_-]i* )
+
+START
+	= '{{'
+
+END
+	= '}}'
+
+FileTemplate
+	= FileChunk*
+
+FileChunk
+	= Expansion
+	/ Raw
+
+Expansion
+	= START _ exp:Expression END { return exp; }
+
+Expression
+	= exp:Ident _ { return exp; }
+
+Ident
+	= name:ident {
+		return { type: 'ident', name: name };
+	}
+
+Raw
+	= $( [^{] / '{' !'{' )+

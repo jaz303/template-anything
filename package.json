@@ -7,5 +7,8 @@
     "git-clone": "0.0.4",
     "tmp": "0.0.24",
     "rimraf": "~2.2.8"
+  },
+  "devDependencies": {
+    "pegjs": "~0.8.0"
   }
 }

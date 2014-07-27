@@ -58,12 +58,23 @@ function doTemplate(templatePath, targetPath) {
 	function _readPlan() {
 		var plan = new Plan();
 
+		plan.inputs
+			.add(new N.DirectiveCall('get', {
+				positionalArgs: [new N.Symbol("module_name")]
+			}));
+
 		plan.script
 			.add(new N.DirectiveCall('tree', {
 				positionalArgs: []
 			}))
 			.add(new N.DirectiveCall('dir', {
 				positionalArgs: [new N.String("foo/bar/baz")]
+			}))
+			.add(new N.DirectiveCall('template', {
+				positionalArgs: [new N.String("Makefile")]
+			}))
+			.add(new N.DirectiveCall('copy', {
+				positionalArgs: [new N.String("optional/.gitignore"), new N.String(".gitignore")]
 			}))
 			.add(new N.DirectiveCall('shell', {
 				positionalArgs: [new N.String("git init && git add . && git commit -m 'initial'")]
