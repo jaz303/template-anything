@@ -1,32 +1,160 @@
+{
+    function mk(thing, opts) {
+        opts.type = thing;
+        return opts;
+    }
+}
+
 _
-	= [ \r\n\t]*
+    = [ \t]*
+
+__
+    = [ \r\n\t]*
 
 ident
-	= $( [a-z]i[a-z0-9_-]i* )
+    = $( [a-z]i[a-z0-9_-]i* )
 
 START
-	= '{{'
+    = '{{'
 
 END
-	= '}}'
+    = '}}'
+
+NL
+    = '\n'
+    / '\r' '\n'?
+
+TERM
+    = _ NL __
+
+//
+// Template
 
 FileTemplate
-	= FileChunk*
+    = FileChunk*
 
 FileChunk
-	= Expansion
-	/ Raw
+    = Expansion
+    / Raw
+
+//
+// Script
+
+Script
+    = __ Statement*
+
+Statement
+    = SectionLabel
+    / Directive
+
+SectionLabel
+    = name:SectionLabelName ':' TERM {
+        return { type: 'label', name: name }
+    }
+
+SectionLabelName
+    = $ 'inputs'
+    / $ 'actions'
+
+Directive
+    = name:ident _ args:DirectiveArgs? TERM {
+        return mk('directive', {name: name, args: args});
+    }
+
+DirectiveArgs
+    = p:DirectivePositionalArgs (',' __ n:DirectiveNamedArgs)? {
+        return { positional: p, named: n || {} };
+    }
+    / n:DirectiveNamedArgs {
+        return { positional: [], named: n };
+    }
+
+DirectivePositionalArgs
+    = ScriptExpression _ (',' __ ScriptExpression)
+
+DirectiveArg
+    = NamedDirectiveArg
+    / PositionalDirectiveArg
+
+NamedDirectiveArg
+    = name:ident _ ':' _ value:ScriptExpression
+
+PositionalDirectiveArg
+    = value:ScriptExpression
+
+ScriptExpression
+    = Pipeline
+    / Atom
+
+Pipeline
+    = head:Atom _ tail:('|' _ Atom)+ {
+        var items = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            items.push(tail[i][2]);
+        }
+        return mk('pipeline', {list: items});
+    }
+
+Atom
+    = FunctionCall
+    / String
+    / Symbol
+    / Array
+
+FunctionCall
+    = name:ident '(' _ args:AtomList? ')' {
+        return mk('function-call', {name: name, args: args});
+    }
+
+Symbol
+    = sym: $( [a-zA-Z0-9\.\\/_:-]+ ) {
+        return mk('symbol', {symbol: sym})
+    }
+
+Array
+    = '[' _ items:AtomList? ']' {
+        return mk('array', {items: items});
+    }
+
+AtomList
+    = Atom _ (',' _ Atom)*
+
+//
+// Common
 
 Expansion
-	= START _ exp:Expression END { return exp; }
+    = START __ exp:Expression END { return exp; }
 
 Expression
-	= exp:Ident _ { return exp; }
+    = exp:Ident __ {
+        return exp;
+    }
 
 Ident
-	= name:ident {
-		return { type: 'ident', name: name };
-	}
+    = name:ident {
+        return { type: 'ident', name: name };
+    }
 
 Raw
-	= $( [^{] / '{' !'{' )+
+    = $( [^{] / '{' !'{' )+
+
+String
+    = '"' str:(StringItem*) '"' {
+        if (str.length === 1 && typeof str[0] === 'string') {
+            return mk('string', str[0]);
+        } else {
+            return mk('interpolated-string', str);
+        }
+    }
+
+StringItem
+    = $( StringChar+ )
+    / Expansion
+
+StringChar
+    = '\\n'     { return "\n"; }
+    / '\\t'     { return "\t"; }
+    / '\\"'     { return '"'; }
+    / '\\\\'    { return "\\"; }
+    / '{' !'{'  { return String.fromCharCode(123); /* workaround for pegjs bug */ }
+    / [^\{\"]

@@ -48,11 +48,13 @@ end
 
 ## TODO
 
-  - [x] Command line - decode template source
-  - [x] Download git repository
-  - [x] Work out user's github user
-  - [ ] `tree` directive
-  - [ ] `file` directive
-  - [ ] `dir` directive
-  - [ ] Parser
-  - [ ] Templating
+  - [ ] Parse plan into AST
+  - [ ] Parse strings
+  - [ ] Parse filter pipeline
+  - [ ] Parse function call
+  - [ ] Implement functions
+  - [ ] If/else
+  - [ ] yesno
+  - [ ] Finish implementation of get (prompt, default)
+  - [ ] Finish implementation of tree (exclusions)
+  - [ ] Unify parsing & handling of templates/plans
