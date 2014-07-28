@@ -9,10 +9,11 @@ _
     = [ \t]*
 
 __
-    = [ \r\n\t]*
+    = IGNORE*
 
-ident
-    = $( [a-z]i[a-z0-9_-]i* )
+IGNORE
+    = [ \r\n\t]+
+    / COMMENT
 
 START
     = '{{'
@@ -24,8 +25,15 @@ NL
     = '\n'
     / '\r' '\n'?
 
+COMMENT
+    = '#' [^\r\n]*
+
 TERM
-    = _ NL __
+    = _ COMMENT? !.
+    / _ COMMENT? NL __
+
+ident
+    = $( [a-z]i[a-z0-9_-]i* )
 
 //
 // Template
@@ -41,7 +49,9 @@ FileChunk
 // Script
 
 Script
-    = __ Statement*
+    = __ statements:(Statement)* {
+        return statements;
+    }
 
 Statement
     = SectionLabel
@@ -62,25 +72,39 @@ Directive
     }
 
 DirectiveArgs
-    = p:DirectivePositionalArgs (',' __ n:DirectiveNamedArgs)? {
-        return { positional: p, named: n || {} };
-    }
-    / n:DirectiveNamedArgs {
+    = n:DirectiveNamedArgs {
         return { positional: [], named: n };
     }
-
+    / p:DirectivePositionalArgs n:(',' __ n:DirectiveNamedArgs)? {
+        return { positional: p, named: n ? n[2] : {} };
+    }
+    
 DirectivePositionalArgs
-    = ScriptExpression _ (',' __ ScriptExpression)
+    = head:DirectivePositionalArg tail:(',' __ DirectivePositionalArg)* {
+        var out = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            out.push(tail[i][2]);
+        }
+        return out;
+    }
 
-DirectiveArg
-    = NamedDirectiveArg
-    / PositionalDirectiveArg
+DirectivePositionalArg
+    = arg:ScriptExpression _ !'=' { return arg; }
 
-NamedDirectiveArg
-    = name:ident _ ':' _ value:ScriptExpression
+DirectiveNamedArgs
+    = head:DirectiveNamedArgPair _ tail:(',' __ DirectiveNamedArgPair _)* {
+        var out = {};
+        out[head.key] = head.value;
+        for (var i = 0; i < tail.length; ++i) {
+            out[tail[i][2].key] = tail[i][2].value;
+        }
+        return out;
+    }
 
-PositionalDirectiveArg
-    = value:ScriptExpression
+DirectiveNamedArgPair
+    = key:ident _ '=' _ value:ScriptExpression {
+        return { key: key, value: value };
+    }
 
 ScriptExpression
     = Pipeline
@@ -141,9 +165,9 @@ Raw
 String
     = '"' str:(StringItem*) '"' {
         if (str.length === 1 && typeof str[0] === 'string') {
-            return mk('string', str[0]);
+            return str[0];
         } else {
-            return mk('interpolated-string', str);
+            return mk('interpolated-string', {chunks: str});
         }
     }
 
