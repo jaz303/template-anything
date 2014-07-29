@@ -45,11 +45,6 @@ templatePath(template, '.', function(err, path) {
 
 function doTemplate(templatePath, targetPath) {
 
-	mkdirp(targetPath, function(err) {
-		if (err) return;
-		_readPlan();
-	});
-
 	var N = require('./lib/nodes');
 	var Plan = require('./lib/Plan');
 	var Environment = require('./lib/Environment');
@@ -57,6 +52,10 @@ function doTemplate(templatePath, targetPath) {
 
 	var env = new Environment();
 	require('./lib/directives')(env);
+
+	var plan = null;
+
+	_readPlan();
 
 	function _readPlan() {
 		fs.readFile(path.join(templatePath, 'plan.tpl'), 'utf8', function(err, src) {
@@ -66,13 +65,21 @@ function doTemplate(templatePath, targetPath) {
 
 	function _parsePlan(src) {
 		try {
-			_runPlan(parser.parse(src, {startRule: 'Script'}));
+			plan = parser.parse(src, {startRule: 'Script'});
+			_createTargetDir();
 		} catch (e) {
 			console.error("error parsing plan!");
 		}
 	}
 
-	function _runPlan(plan) {
+	function _createTargetDir() {
+		mkdirp(targetPath, function(err) {
+			if (err) return;
+			_runPlan();
+		});
+	}
+
+	function _runPlan() {
 		var exec = new Executor();
 		console.log("RUN");
 		console.log(plan);
