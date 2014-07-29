@@ -12,6 +12,9 @@ var clone = require('git-clone');
 var tmp = require('tmp');
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
+var fs = require('fs');
+var path = require('path');
+var parser = require('./lib/parser');
 
 templatePath(template, '.', function(err, path) {
 
@@ -56,36 +59,24 @@ function doTemplate(templatePath, targetPath) {
 	require('./lib/directives')(env);
 
 	function _readPlan() {
-		var plan = new Plan();
+		fs.readFile(path.join(templatePath, 'plan.tpl'), 'utf8', function(err, src) {
+			_parsePlan(err ? 'tree' : src);
+		});
+	}
 
-		plan.inputs
-			.add(new N.DirectiveCall('get', {
-				positionalArgs: [new N.Symbol("module_name")]
-			}));
-
-		plan.script
-			.add(new N.DirectiveCall('tree', {
-				positionalArgs: []
-			}))
-			.add(new N.DirectiveCall('dir', {
-				positionalArgs: [new N.String("foo/bar/baz")]
-			}))
-			.add(new N.DirectiveCall('template', {
-				positionalArgs: [new N.String("Makefile")]
-			}))
-			.add(new N.DirectiveCall('copy', {
-				positionalArgs: [new N.String("optional/.gitignore"), new N.String(".gitignore")]
-			}))
-			.add(new N.DirectiveCall('shell', {
-				positionalArgs: [new N.String("git init && git add . && git commit -m 'initial'")]
-			}))
-
-		_runPlan(plan);
+	function _parsePlan(src) {
+		try {
+			_runPlan(parser.parse(src, {startRule: 'Script'}));
+		} catch (e) {
+			console.error("error parsing plan!");
+		}
 	}
 
 	function _runPlan(plan) {
 		var exec = new Executor();
-		exec.run(plan, env, templatePath, targetPath);
+		console.log("RUN");
+		console.log(plan);
+		// exec.run(plan, env, templatePath, targetPath);
 	}
 
 }
