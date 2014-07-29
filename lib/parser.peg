@@ -32,8 +32,14 @@ TERM
     = _ COMMENT? !.
     / _ COMMENT? NL __
 
+ident_start
+    = [a-z]i
+
+ident_rest
+    = [a-z0-9_-]i
+
 ident
-    = $( [a-z]i[a-z0-9_-]i* )
+    = !Keyword name:$( ident_start ident_rest* ) { return name; }
 
 //
 // Template
@@ -49,14 +55,18 @@ FileChunk
 // Script
 
 Script
+    = Statements 
+
+Statements
     = __ statements:(Statement)* {
         return statements;
     }
 
 Statement
     = SectionLabel
+    / IfStatement
     / Directive
-
+    
 SectionLabel
     = name:SectionLabelName ':' TERM {
         return { type: 'label', name: name }
@@ -68,7 +78,7 @@ SectionLabelName
 
 Directive
     = name:ident _ args:DirectiveArgs? TERM {
-        return mk('directive', {name: name, args: args});
+        return mk('directive', {name: name, args: args || { positional: [], named: {} } });
     }
 
 DirectiveArgs
@@ -104,6 +114,16 @@ DirectiveNamedArgs
 DirectiveNamedArgPair
     = key:ident _ '=' _ value:ScriptExpression {
         return { key: key, value: value };
+    }
+
+IfStatement
+    = 'if' _ cond:ScriptExpression _ NL body:Statements alt:ElseStatement? 'end' TERM {
+        return mk('if', { condition: cond, consequent: body, alternate: alt || [] });
+    }
+
+ElseStatement
+    = 'else' _ NL body:Statements {
+        return body;
     }
 
 ScriptExpression
@@ -182,3 +202,12 @@ StringChar
     / '\\\\'    { return "\\"; }
     / '{' !'{'  { return String.fromCharCode(123); /* workaround for pegjs bug */ }
     / [^\{\"]
+
+Keyword
+    = IfKeyword
+    / ElseKeyword
+    / EndKeyword
+
+IfKeyword       = 'if'      !ident_rest
+ElseKeyword     = 'else'    !ident_rest
+EndKeyword      = 'end'     !ident_rest
