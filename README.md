@@ -48,6 +48,10 @@ end
 
 ## TODO
 
+  - [ ] Parser - fix sections
+  - [ ] Parser - fix directive args
+  - [ ] Parser - add predicate
+
   - [ ] Parse plan into AST
   - [ ] Parse strings
   - [ ] Parse filter pipeline

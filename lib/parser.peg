@@ -99,7 +99,7 @@ DirectivePositionalArgs
     }
 
 DirectivePositionalArg
-    = arg:ScriptExpression _ !'=' { return arg; }
+    = arg:ScriptExpression !':' { return arg; }
 
 DirectiveNamedArgs
     = head:DirectiveNamedArgPair _ tail:(',' __ DirectiveNamedArgPair _)* {
@@ -112,7 +112,7 @@ DirectiveNamedArgs
     }
 
 DirectiveNamedArgPair
-    = key:ident _ '=' _ value:ScriptExpression {
+    = key:ident ':' _ value:ScriptExpression {
         return { key: key, value: value };
     }
 
@@ -151,7 +151,7 @@ FunctionCall
     }
 
 Symbol
-    = sym: $( [a-zA-Z0-9\.\\/_:-]+ ) {
+    = sym: $( [a-zA-Z0-9\.\\/_-]+ ) {
         return mk('symbol', {symbol: sym})
     }
 
