@@ -142,6 +142,7 @@ Pipeline
 Atom
     = FunctionCall
     / String
+    / Predicate
     / Symbol
     / Array
 
@@ -150,9 +151,14 @@ FunctionCall
         return mk('function-call', {name: name, args: args});
     }
 
+Predicate
+    = sym:Symbol '?' {
+        return mk('predicate', {name: sym.name});
+    }
+
 Symbol
     = sym: $( [a-zA-Z0-9\.\\/_-]+ ) {
-        return mk('symbol', {symbol: sym})
+        return mk('symbol', {name: sym})
     }
 
 Array

@@ -50,7 +50,7 @@ end
 
   - [ ] Parser - fix sections
   - [ ] Parser - fix directive args
-  - [ ] Parser - add predicate
+  - [x] Parser - add predicate
 
   - [ ] Parse plan into AST
   - [ ] Parse strings
