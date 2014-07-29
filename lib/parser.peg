@@ -55,7 +55,23 @@ FileChunk
 // Script
 
 Script
-    = Statements 
+    = __ leader:Statements sections:NamedSection* {
+        if (leader.length) {
+            leader = mk('section', { section: 'actions', body: leader });
+            sections.unshift(leader);
+        }
+        return sections;
+    }
+
+NamedSection
+    = label:SectionLabel body:Statements {
+        return mk('section', { section: label, body: body });
+    }
+
+SectionLabel
+    = name:SectionLabelName ':' TERM {
+        return name;
+    }
 
 Statements
     = __ statements:(Statement)* {
@@ -63,14 +79,8 @@ Statements
     }
 
 Statement
-    = SectionLabel
-    / IfStatement
+    = IfStatement
     / Directive
-    
-SectionLabel
-    = name:SectionLabelName ':' TERM {
-        return { type: 'label', name: name }
-    }
 
 SectionLabelName
     = $ 'inputs'
@@ -78,7 +88,10 @@ SectionLabelName
 
 Directive
     = name:ident _ args:DirectiveArgs? TERM {
-        return mk('directive', {name: name, args: args || { positional: [], named: {} } });
+        return mk('directive', {
+            name: name,
+            args: args || { positional: [], named: {} }
+        });
     }
 
 DirectiveArgs
@@ -99,10 +112,10 @@ DirectivePositionalArgs
     }
 
 DirectivePositionalArg
-    = arg:ScriptExpression !':' { return arg; }
+    = arg:ScriptExpression { return arg; }
 
 DirectiveNamedArgs
-    = head:DirectiveNamedArgPair _ tail:(',' __ DirectiveNamedArgPair _)* {
+    = head:DirectiveNamedArgPair tail:(',' __ DirectiveNamedArgPair)* {
         var out = {};
         out[head.key] = head.value;
         for (var i = 0; i < tail.length; ++i) {
@@ -117,12 +130,12 @@ DirectiveNamedArgPair
     }
 
 IfStatement
-    = 'if' _ cond:ScriptExpression _ NL body:Statements alt:ElseStatement? 'end' TERM {
+    = IfKeyword _ cond:ScriptExpression _ NL body:Statements alt:ElseStatement? EndKeyword TERM {
         return mk('if', { condition: cond, consequent: body, alternate: alt || [] });
     }
 
 ElseStatement
-    = 'else' _ NL body:Statements {
+    = ElseKeyword _ NL body:Statements {
         return body;
     }
 
@@ -131,7 +144,7 @@ ScriptExpression
     / Atom
 
 Pipeline
-    = head:Atom _ tail:('|' _ Atom)+ {
+    = head:Atom tail:('|' _ Atom)+ {
         var items = [head];
         for (var i = 0; i < tail.length; ++i) {
             items.push(tail[i][2]);
@@ -140,11 +153,11 @@ Pipeline
     }
 
 Atom
-    = FunctionCall
-    / String
-    / Predicate
-    / Symbol
-    / Array
+    = a:FunctionCall _  { return a; }
+    / a:String _        { return a; }
+    / a:Predicate _     { return a; }
+    / a:Symbol _        { return a; }
+    / a:Array _         { return a; }
 
 FunctionCall
     = name:ident '(' _ args:AtomList? ')' {
@@ -157,9 +170,15 @@ Predicate
     }
 
 Symbol
-    = sym: $( [a-zA-Z0-9\.\\/_-]+ ) {
-        return mk('symbol', {name: sym})
+    = sym:$( SymbolAtom+ ) !':' {
+        return mk('symbol', {name: sym});
     }
+
+SymbolAtom
+    = SymbolChar / ':' &SymbolChar
+
+SymbolChar
+    = [a-z0-9\.\\/_-]i
 
 Array
     = '[' _ items:AtomList? ']' {
@@ -167,7 +186,13 @@ Array
     }
 
 AtomList
-    = Atom _ (',' _ Atom)*
+    = head:Atom _ tail:(',' _ Atom _)* {
+        var out = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            out.push(tail[i][2]);
+        }
+        return out;
+    }
 
 //
 // Common

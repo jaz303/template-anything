@@ -48,8 +48,8 @@ end
 
 ## TODO
 
-  - [ ] Parser - fix sections
-  - [ ] Parser - fix directive args
+  - [x] Parser - fix sections
+  - [x] Parser - fix directive args
   - [x] Parser - add predicate
 
   - [ ] Parse plan into AST
