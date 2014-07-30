@@ -1,4 +1,6 @@
 {
+    var T = require('./ast_types');
+
     function mk(thing, opts) {
         opts.type = thing;
         return opts;
@@ -57,7 +59,7 @@ FileChunk
 Script
     = __ leader:Statements sections:NamedSection* {
         if (leader.length) {
-            leader = mk('section', { section: 'actions', body: leader });
+            leader = mk(T.SECTION, { section: 'actions', body: leader });
             sections.unshift(leader);
         }
         return sections;
@@ -65,7 +67,7 @@ Script
 
 NamedSection
     = label:SectionLabel body:Statements {
-        return mk('section', { section: label, body: body });
+        return mk(T.SECTION, { section: label, body: body });
     }
 
 SectionLabel
@@ -88,7 +90,7 @@ SectionLabelName
 
 Directive
     = name:ident _ args:DirectiveArgs? TERM {
-        return mk('directive', {
+        return mk(T.DIRECTIVE, {
             name: name,
             args: args || { positional: [], named: {} }
         });
@@ -131,7 +133,7 @@ DirectiveNamedArgPair
 
 IfStatement
     = IfKeyword _ cond:ScriptExpression _ NL body:Statements alt:ElseStatement? EndKeyword TERM {
-        return mk('if', { condition: cond, consequent: body, alternate: alt || [] });
+        return mk(T.IF, { condition: cond, consequent: body, alternate: alt || [] });
     }
 
 ElseStatement
@@ -149,7 +151,7 @@ Pipeline
         for (var i = 0; i < tail.length; ++i) {
             items.push(tail[i][2]);
         }
-        return mk('pipeline', {list: items});
+        return mk(T.PIPELINE, {list: items});
     }
 
 Atom
@@ -161,17 +163,17 @@ Atom
 
 FunctionCall
     = name:ident '(' _ args:AtomList? ')' {
-        return mk('function-call', {name: name, args: args});
+        return mk(T.CALL, {name: name, args: args});
     }
 
 Predicate
     = sym:Symbol '?' {
-        return mk('predicate', {name: sym.name});
+        return mk(T.PREDICATE, {name: sym.name});
     }
 
 Symbol
     = sym:$( SymbolAtom+ ) !':' {
-        return mk('symbol', {name: sym});
+        return mk(T.SYMBOL, {name: sym});
     }
 
 SymbolAtom
@@ -182,7 +184,7 @@ SymbolChar
 
 Array
     = '[' _ items:AtomList? ']' {
-        return mk('array', {items: items});
+        return mk(T.ARRAY, {items: items});
     }
 
 AtomList
@@ -207,7 +209,7 @@ Expression
 
 Ident
     = name:ident {
-        return { type: 'ident', name: name };
+        return mk(T.IDENT, {name: name});
     }
 
 Raw
@@ -218,7 +220,7 @@ String
         if (str.length === 1 && typeof str[0] === 'string') {
             return str[0];
         } else {
-            return mk('interpolated-string', {chunks: str});
+            return mk(T.INTERPOLATED_STRING, {chunks: str});
         }
     }
 
