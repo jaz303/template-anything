@@ -1,4 +1,6 @@
+# template-anything
 
+Turn any git repository into a project template!
 
 ## Examples
 
