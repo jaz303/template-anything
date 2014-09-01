@@ -163,7 +163,7 @@ Atom
 
 FunctionCall
     = name:ident '(' _ args:AtomList? ')' {
-        return mk(T.CALL, {name: name, args: args});
+        return mk(T.CALL, {name: name, args: args || []});
     }
 
 Predicate
