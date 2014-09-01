@@ -16,6 +16,8 @@ var fs = require('fs');
 var path = require('path');
 var parser = require('./lib/parser');
 
+var Context = require('./lib/Context');
+
 templatePath(template, '.', function(err, path) {
 
 	tmp.dir({unsafeCleanup: true}, function(err, tmpDir) {
@@ -81,9 +83,10 @@ function doTemplate(templatePath, targetPath) {
 
 	function _runPlan() {
 		var exec = new Executor();
-		console.log("RUN");
-		console.log(plan);
-		// exec.run(plan, env, templatePath, targetPath);
+		exec.run(
+			plan,
+			new Context(env, templatePath, targetPath)
+		);
 	}
 
 }
