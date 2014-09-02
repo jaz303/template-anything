@@ -59,15 +59,15 @@ FileChunk
 Script
     = __ leader:Statements sections:NamedSection* {
         if (leader.length) {
-            leader = mk(T.SECTION, { section: 'actions', body: leader });
+            leader = mk(T.SECTION, { name: 'actions', body: leader });
             sections.unshift(leader);
         }
-        return sections;
+        return { sections: sections };
     }
 
 NamedSection
     = label:SectionLabel body:Statements {
-        return mk(T.SECTION, { section: label, body: body });
+        return mk(T.SECTION, { name: label, body: body });
     }
 
 SectionLabel
