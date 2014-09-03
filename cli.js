@@ -18,7 +18,7 @@ var parser = require('./lib/parser');
 
 var Context = require('./lib/Context');
 var Environment = require('./lib/Environment');
-var Executor = require('./lib/Executor');
+var evaluator = require('./lib/evaluator');
 
 templatePath(template, '.', function(err, tp) {
 
@@ -81,8 +81,7 @@ function doTemplate(templatePath, targetPath) {
 
 	var context = new Context(env, templatePath, targetPath);
 
-	var executor = new Executor();
-	executor.run(plan, context, function(err) {
+	evaluator.run(plan, context, function(err) {
 		if (err) {
 			console.error(err);
 			console.error(err.stack);
