@@ -146,7 +146,7 @@ ScriptExpression
     / Atom
 
 Pipeline
-    = head:Atom tail:('|' _ Atom)+ {
+    = head:Atom tail:('|' _ FunctionCall)+ {
         var items = [head];
         for (var i = 0; i < tail.length; ++i) {
             items.push(tail[i][2]);
