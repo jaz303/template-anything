@@ -18,7 +18,7 @@ var parser = require('./lib/parser');
 
 var Context = require('./lib/Context');
 var Environment = require('./lib/Environment');
-var evaluator = require('./lib/evaluator');
+var evaluate = require('./lib/evaluate');
 
 templatePath(template, '.', function(err, tp) {
 
@@ -81,7 +81,7 @@ function doTemplate(templatePath, targetPath) {
 
 	var context = new Context(env, templatePath, targetPath);
 
-	evaluator.run(plan, context, function(err) {
+	evaluate.run(plan, context, function(err) {
 		if (err) {
 			console.error(err);
 			console.error(err.stack);
