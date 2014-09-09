@@ -1,0 +1,6 @@
+template-anything
+
+Usage:
+  ta <template> <target>
+  ta -h, --help
+  ta -v, --version
