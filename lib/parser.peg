@@ -156,6 +156,7 @@ Pipeline
 
 Atom
     = a:FunctionCall _  { return a; }
+    / a:Variable _      { return a; }
     / a:String _        { return a; }
     / a:Predicate _     { return a; }
     / a:Symbol _        { return a; }
@@ -164,6 +165,11 @@ Atom
 FunctionCall
     = name:ident '(' _ args:AtomList? ')' {
         return mk(T.CALL, {name: name, args: args || []});
+    }
+
+Variable
+    = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
+        return mk(T.VARIABLE, {name: sym.name});
     }
 
 Predicate
