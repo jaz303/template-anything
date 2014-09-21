@@ -29,10 +29,34 @@ test('literal - string', function(assert) {
 
 });
 
+test('variable', function(assert) {
+
+	var env = new Environment();
+	env.setVariable('name', 'Jason');
+
+	var ast = parse('$name');
+	var res = expressions.evaluate(env, ast);
+
+	assert.equal(res, 'Jason');
+	assert.end();
+
+});
+
+test('interpolated string', function(assert) {
+
+	var env = new Environment();
+	env.setVariable('name', 'John');
+
+	var ast = parse('"{{ Hello }} {{ $name }}"');
+	var res = expressions.evaluate(env, ast);
+
+	assert.equal(res, 'Hello John');
+	assert.end();
+
+});
+
 // clarify data types
 // function call
-// variable lookup
 // array
 // predicate
 // pipeline
-// interpolated string

@@ -169,7 +169,7 @@ FunctionCall
 
 Variable
     = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
-        return mk(T.VARIABLE, {name: sym.name});
+        return mk(T.VARIABLE, {name: name});
     }
 
 Predicate
@@ -206,17 +206,7 @@ AtomList
 // Common
 
 Expansion
-    = START __ exp:Expression END { return exp; }
-
-Expression
-    = exp:Ident __ {
-        return exp;
-    }
-
-Ident
-    = name:ident {
-        return mk(T.IDENT, {name: name});
-    }
+    = START __ exp:ScriptExpression END { return exp; }
 
 Raw
     = $( [^{] / '{' !'{' )+
