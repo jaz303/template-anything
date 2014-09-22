@@ -1,4 +1,8 @@
 {
+  "name": "template-anything",
+  "scripts": {
+    "test": "set -e; for t in test/*; do node $t; done"
+  },
   "dependencies": {
     "docopt": "^0.4.0",
     "git-clone": "0.0.4",
