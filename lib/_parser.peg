@@ -1,0 +1,242 @@
+{
+    var T = require('./ast_types');
+
+    function mk(thing, opts) {
+        opts.type = thing;
+        return opts;
+    }
+}
+
+_
+    = [ \t]*
+
+__
+    = IGNORE*
+
+IGNORE
+    = [ \r\n\t]+
+    / COMMENT
+
+START
+    = '{{'
+
+END
+    = '}}'
+
+NL
+    = '\n'
+    / '\r' '\n'?
+
+COMMENT
+    = '#' [^\r\n]*
+
+TERM
+    = _ COMMENT? !.
+    / _ COMMENT? NL __
+
+ident_start
+    = [a-z]i
+
+ident_rest
+    = [a-z0-9_-]i
+
+ident
+    = !Keyword name:$( ident_start ident_rest* ) { return name; }
+
+//
+// Template
+
+FileTemplate
+    = FileChunk*
+
+FileChunk
+    = Expansion
+    / Raw
+
+//
+// Script
+
+Script
+    = __ leader:Statements sections:NamedSection* {
+        if (leader.length) {
+            leader = mk(T.SECTION, { name: 'actions', body: leader });
+            sections.unshift(leader);
+        }
+        return { sections: sections };
+    }
+
+NamedSection
+    = label:SectionLabel body:Statements {
+        return mk(T.SECTION, { name: label, body: body });
+    }
+
+SectionLabel
+    = name:SectionLabelName ':' TERM {
+        return name;
+    }
+
+Statements
+    = __ statements:(Statement)* {
+        return statements;
+    }
+
+Statement
+    = IfStatement
+    / Directive
+
+SectionLabelName
+    = $ 'inputs'
+    / $ 'actions'
+
+Directive
+    = name:ident _ args:DirectiveArgs? TERM {
+        return mk(T.DIRECTIVE, {
+            name: name,
+            args: args || { positional: [], named: {} }
+        });
+    }
+
+DirectiveArgs
+    = n:DirectiveNamedArgs {
+        return { positional: [], named: n };
+    }
+    / p:DirectivePositionalArgs n:(',' __ n:DirectiveNamedArgs)? {
+        return { positional: p, named: n ? n[2] : {} };
+    }
+    
+DirectivePositionalArgs
+    = head:DirectivePositionalArg tail:(',' __ DirectivePositionalArg)* {
+        var out = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            out.push(tail[i][2]);
+        }
+        return out;
+    }
+
+DirectivePositionalArg
+    = arg:ScriptExpression { return arg; }
+
+DirectiveNamedArgs
+    = head:DirectiveNamedArgPair tail:(',' __ DirectiveNamedArgPair)* {
+        var out = {};
+        out[head.key] = head.value;
+        for (var i = 0; i < tail.length; ++i) {
+            out[tail[i][2].key] = tail[i][2].value;
+        }
+        return out;
+    }
+
+DirectiveNamedArgPair
+    = key:ident ':' _ value:ScriptExpression {
+        return { key: key, value: value };
+    }
+
+IfStatement
+    = IfKeyword _ cond:ScriptExpression _ NL body:Statements alt:ElseStatement? EndKeyword TERM {
+        return mk(T.IF, { condition: cond, consequent: body, alternate: alt || [] });
+    }
+
+ElseStatement
+    = ElseKeyword _ NL body:Statements {
+        return body;
+    }
+
+ScriptExpression
+    = Pipeline
+    / Atom
+
+Pipeline
+    = head:Atom tail:('|' _ FunctionCall)+ {
+        var items = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            items.push(tail[i][2]);
+        }
+        return mk(T.PIPELINE, {list: items});
+    }
+
+Atom
+    = a:FunctionCall _  { return a; }
+    / a:Variable _      { return a; }
+    / a:String _        { return a; }
+    / a:Predicate _     { return a; }
+    / a:Symbol _        { return a; }
+    / a:Array _         { return a; }
+
+FunctionCall
+    = name:ident '(' _ args:AtomList? ')' {
+        return mk(T.CALL, {name: name, args: args || []});
+    }
+
+Variable
+    = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
+        return mk(T.VARIABLE, {name: name});
+    }
+
+Predicate
+    = sym:Symbol '?' {
+        return mk(T.PREDICATE, {name: sym.name});
+    }
+
+Symbol
+    = sym:$( SymbolAtom+ ) !':' {
+        return mk(T.SYMBOL, {name: sym});
+    }
+
+SymbolAtom
+    = SymbolChar / ':' &SymbolChar
+
+SymbolChar
+    = [a-z0-9\.\\/_-]i
+
+Array
+    = '[' _ items:AtomList? ']' {
+        return mk(T.ARRAY, {items: items});
+    }
+
+AtomList
+    = head:Atom _ tail:(',' _ Atom _)* {
+        var out = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            out.push(tail[i][2]);
+        }
+        return out;
+    }
+
+//
+// Common
+
+Expansion
+    = START __ exp:ScriptExpression END { return exp; }
+
+Raw
+    = $( [^{] / '{' !'{' )+
+
+String
+    = '"' str:(StringItem*) '"' {
+        if (str.length === 1 && typeof str[0] === 'string') {
+            return str[0];
+        } else {
+            return mk(T.INTERPOLATED_STRING, {chunks: str});
+        }
+    }
+
+StringItem
+    = $( StringChar+ )
+    / Expansion
+
+StringChar
+    = '\\n'     { return "\n"; }
+    / '\\t'     { return "\t"; }
+    / '\\"'     { return '"'; }
+    / '\\\\'    { return "\\"; }
+    / '{' !'{'  { return String.fromCharCode(123); /* workaround for pegjs bug */ }
+    / [^\{\"]
+
+Keyword
+    = IfKeyword
+    / ElseKeyword
+    / EndKeyword
+
+IfKeyword       = 'if'      !ident_rest
+ElseKeyword     = 'else'    !ident_rest
+EndKeyword      = 'end'     !ident_rest

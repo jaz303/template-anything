@@ -55,8 +55,100 @@ test('interpolated string', function(assert) {
 
 });
 
-// clarify data types
-// function call
-// array
-// predicate
-// pipeline
+test('function call', function(assert) {
+
+	var env = new Environment();
+	env.setFunction('downcase', function(str) {
+		return str.toLowerCase();
+	});
+
+	var ast = parse('downcase("FOO")');
+	var res = expressions.evaluate(env, ast);
+
+	assert.equal(res, 'foo');
+	assert.end();
+
+});
+
+test("function call - complex", function(assert) {
+
+	var env = new Environment();
+
+	env.setVariable('subject', 'FOOBAR');
+
+	env.setFunction('repeat', function(str, count, join) {
+		var out = [];
+		while (count--) {
+			out.push(str);
+		}
+		return out.join(join);
+	});
+	
+	env.setFunction('downcase', function(str) {
+		return str.toLowerCase();
+	});
+
+	env.setFunction('substr', function(str, start) {
+		return str.substr(start);
+	});
+
+	var ast = parse('repeat(downcase(substr($subject, 3)), 2, " - ")');
+	var res = expressions.evaluate(env, ast);
+
+	assert.equal(res, 'bar - bar');
+	assert.end();
+
+});
+
+test("array", function(assert) {
+
+	var env = new Environment();
+
+	var ast = parse('[1,2,3]');
+	var res = expressions.evaluate(env, ast);
+
+	assert.deepEqual(res, [1,2,3]);
+	assert.end();
+
+});
+
+test("pipeline", function(assert) {
+
+	var env = new Environment();
+
+	env.setVariable('name', 'JASON');
+
+	env.setFunction('prepend', function(str, prefix) {
+		return '' + prefix + str;
+	});
+
+	env.setFunction('downcase', function(str) {
+		return ('' + str).toLowerCase();
+	});
+
+	var ast = parse('$name | prepend("HELLO ") | downcase()');
+	var res = expressions.evaluate(env, ast);
+
+	assert.equal(res, "hello jason");
+	assert.end();
+
+});
+
+test("partial pipeline", function(assert) {
+
+	var env = new Environment();
+
+	env.setFunction('downcase', function(str) {
+		return str.toLowerCase();
+	});
+
+	var ast = parse('| downcase()');
+
+	assert.equal(ast, expressions.evaluate(env, ast));
+
+	var res = expressions.pipe(env, ast, 'HELLO');
+	assert.equal(res, 'hello');
+
+	assert.end();
+
+});
