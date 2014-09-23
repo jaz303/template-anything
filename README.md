@@ -5,32 +5,26 @@ Turn any git repository into a project template!
 ## Examples
 
 ```
-extends github:jaz303/foobar
-
 inputs:
     
-get project_title, prompt="Project title: "
+get project_title, prompt: "Project title: "
 
-get module_name, prompt = "Module name: "
-                 default = project_title | underscore | replace('_', '-')
+get module_name, prompt: "Module name: ",
+                 default: $project_title | underscore() | replace('_', '-')
 
-get create_git_repo, prompt = "Create git repository? [y/n]: ",
-                     default = "y",
-                     filter = downcase | strip | default("y"),
-                     limit = [ "y", "n" ]
+yesno create_git_repo, prompt: "Create git repository? [y/n]: ",
+                       default: "y"
 
 actions:
-
-invoke github:jaz303/bleem, foo = "bar", bleem = "baz"
 
 tree src=www target=.
 dir config
 
-if create_git_repo?
+if $create_git_repo
     file optional/.gitignore, dest=.gitignore
-    shell 'git init'
-    shell 'git add .'
-    shell 'git commit -m "Initial revision"'
+    shell "git init"
+    shell "git add ."
+    shell "git commit -m 'Initial revision'"
 end
 ```
 
@@ -54,13 +48,15 @@ end
   - [x] Parser - fix directive args
   - [x] Parser - add predicate
 
-  - [ ] Parse plan into AST
-  - [ ] Parse strings
-  - [ ] Parse filter pipeline
-  - [ ] Parse function call
-  - [ ] Implement functions
-  - [ ] If/else
+  - [x] Parse plan into AST
+  - [x] Parse strings
+  - [x] Parse filter pipeline
+  - [x] Parse function call
+  - [x] Implement functions
+  - [x] If/else
   - [ ] yesno
   - [ ] Finish implementation of get (prompt, default)
   - [ ] Finish implementation of tree (exclusions)
   - [ ] Unify parsing & handling of templates/plans
+
+  - [ ] Extract expression evaluation & test
