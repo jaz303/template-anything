@@ -1,6 +1,6 @@
 {
   "name": "template-anything",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Turn any git repository into a project template!",
   "scripts": {
     "test": "set -e; for t in test/*; do node $t; done"
