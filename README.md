@@ -17,11 +17,11 @@ yesno create_git_repo, prompt: "Create git repository? [y/n]: ",
 
 actions:
 
-tree src: www dest: .
+tree src: www, dest: .
 dir config
 
 if $create_git_repo
-    file optional/.gitignore, dest: .gitignore
+    copy optional/.gitignore, dest: .gitignore
     shell "git init"
     shell "git add ."
     shell "git commit -m 'Initial revision'"
