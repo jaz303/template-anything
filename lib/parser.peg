@@ -232,7 +232,7 @@ COMMENT
     = '#' [^\r\n]*
 
 TERM
-    = _ !EndKeyword
+    = _ &EndKeyword
     / _ COMMENT? !.
     / _ COMMENT? NL __
 
