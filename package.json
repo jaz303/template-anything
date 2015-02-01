@@ -1,7 +1,12 @@
 {
   "name": "template-anything",
+  "version": "0.0.0",
+  "description": "Turn any git repository into a project template!",
   "scripts": {
     "test": "set -e; for t in test/*; do node $t; done"
+  },
+  "bin": {
+    "ta": "./bin/ta"
   },
   "dependencies": {
     "docopt": "^0.4.0",
@@ -16,5 +21,15 @@
   },
   "devDependencies": {
     "pegjs": "~0.8.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jaz303/template-anything.git"
+  },
+  "author": "Jason Frame <jason@onehackoranother.com> (http://jasonframe.co.uk)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaz303/template-anything/issues"
+  },
+  "homepage": "https://github.com/jaz303/template-anything",
 }
