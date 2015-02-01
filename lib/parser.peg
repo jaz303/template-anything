@@ -8,50 +8,92 @@
 }
 
 //
-// Helpers
-_
-    = [ \t]*
+// Script
 
-__
-    = IGNORE*
+Script
+    = __ leader:Statements sections:NamedSection* {
+        if (leader.length) {
+            leader = mk(T.SECTION, { name: 'actions', body: leader });
+            sections.unshift(leader);
+        }
+        return sections;
+    }
 
-IGNORE
-    = [ \r\n\t]+
-    / COMMENT
+NamedSection
+    = label:SectionLabel body:Statements {
+        return mk(T.SECTION, { name: label, body: body });
+    }
 
-START
-    = '{{'
+SectionLabel
+    = name:SectionLabelName ':' TERM {
+        return name;
+    }
 
-END
-    = '}}'
+SectionLabelName
+    = $ 'inputs'
+    / $ 'actions'
 
-NL
-    = '\n'
-    / '\r' '\n'?
+Statements
+    = __ statements:(Statement)* {
+        return statements;
+    }
 
-COMMENT
-    = '#' [^\r\n]*
+Statement
+    = IfStatement
+    / Directive
 
-ident_start
-    = [a-z]i
+IfStatement
+    = IfKeyword _ cond:ScriptExpression _ ThenKeyword __ body:Statements alt:ElseClause? EndKeyword TERM {
+        return mk(T.IF, { condition: cond, consequent: body, alternate: alt || [] });
+    }
 
-ident_rest
-    = [a-z0-9_-]i
+ElseClause
+    = ElseKeyword __ body:Statements {
+        return body;
+    }
 
-ident
-    = !Keyword name:$( ident_start ident_rest* ) { return name; }
+Directive
+    = name:ident _ args:DirectiveArgs? TERM {
+        return mk(T.DIRECTIVE, {
+            name: name,
+            args: args || { positional: [], named: {} }
+        });
+    }
 
-//
-// Keywords
+DirectiveArgs
+    = n:DirectiveNamedArgs {
+        return { positional: [], named: n };
+    }
+    / p:DirectivePositionalArgs n:(',' __ n:DirectiveNamedArgs)? {
+        return { positional: p, named: n ? n[2] : {} };
+    }
+    
+DirectivePositionalArgs
+    = head:DirectivePositionalArg tail:(',' __ DirectivePositionalArg)* {
+        var out = [head];
+        for (var i = 0; i < tail.length; ++i) {
+            out.push(tail[i][2]);
+        }
+        return out;
+    }
 
-Keyword
-    = IfKeyword
-    / ElseKeyword
-    / EndKeyword
+DirectivePositionalArg
+    = arg:ScriptExpression { return arg; }
 
-IfKeyword       = 'if'      !ident_rest
-ElseKeyword     = 'else'    !ident_rest
-EndKeyword      = 'end'     !ident_rest
+DirectiveNamedArgs
+    = head:DirectiveNamedArgPair tail:(',' __ DirectiveNamedArgPair)* {
+        var out = {};
+        out[head.key] = head.value;
+        for (var i = 0; i < tail.length; ++i) {
+            out[tail[i][2].key] = tail[i][2].value;
+        }
+        return out;
+    }
+
+DirectiveNamedArgPair
+    = key:ident ':' _ value:ScriptExpression {
+        return { key: key, value: value };
+    }
 
 //
 // Expression Parsing
@@ -62,21 +104,40 @@ ScriptExpression
     / Atom
 
 Pipeline
-    = head:Atom pipeline:PartialPipeline {
+    = head:Atom items:(__ '|' __ FunctionCall)+ {
         return mk(T.PIPELINE, {
             initial: head,
-            pipeline: pipeline
+            pipeline: mk(T.PARTIAL_PIPELINE, {
+                list: items.map(function(i) { return i[3]; })
+            })
         });
     }
 
 PartialPipeline
-    = items:('|' _ FunctionCall _)+ {
+    = '|' __ head:FunctionCall tail:(__ '|' __ FunctionCall)+ {
         return mk(T.PARTIAL_PIPELINE, {
-            list: items.map(function(i) {
-                return i[2]
-            })
+            list: [head].concat(tail.map(function(i) { return i[3]; }))
         });
     }
+
+//
+// Template Parsing
+
+FileTemplate
+    = FileChunk*
+
+FileChunk
+    = Expansion
+    / Raw
+
+Expansion
+    = EXPANSION_START __ exp:ScriptExpression __ EXPANSION_END { return exp; }
+
+Raw
+    = $( [^{] / '{' !'{' )+
+
+//
+// Atoms
 
 Atom
     = a:FunctionCall _  { return a; }
@@ -104,6 +165,27 @@ Variable
         return mk(T.VARIABLE, {name: name});
     }
 
+String
+    = '"' str:(StringItem*) '"' {
+        if (str.length === 1 && typeof str[0] === 'string') {
+            return str[0];
+        } else {
+            return mk(T.INTERPOLATED_STRING, {chunks: str});
+        }
+    }
+
+StringItem
+    = $( StringChar+ )
+    / Expansion
+
+StringChar
+    = '\\n'     { return "\n"; }
+    / '\\t'     { return "\t"; }
+    / '\\"'     { return '"'; }
+    / '\\\\'    { return "\\"; }
+    / '{' !'{'  { return String.fromCharCode(123); /* workaround for pegjs bug */ }
+    / [^\{\"]
+
 Symbol
     = sym:$( SymbolAtom+ ) !':' {
         return mk(T.SYMBOL, {name: sym});
@@ -129,26 +211,56 @@ AtomList
         return out;
     }
 
-Expansion
-    = START __ exp:ScriptExpression END { return exp; }
+//
+// Helpers
 
-String
-    = '"' str:(StringItem*) '"' {
-        if (str.length === 1 && typeof str[0] === 'string') {
-            return str[0];
-        } else {
-            return mk(T.INTERPOLATED_STRING, {chunks: str});
-        }
-    }
+_
+    = [ \t]*
 
-StringItem
-    = $( StringChar+ )
-    / Expansion
+__
+    = IGNORE*
 
-StringChar
-    = '\\n'     { return "\n"; }
-    / '\\t'     { return "\t"; }
-    / '\\"'     { return '"'; }
-    / '\\\\'    { return "\\"; }
-    / '{' !'{'  { return String.fromCharCode(123); /* workaround for pegjs bug */ }
-    / [^\{\"]
+IGNORE
+    = [ \t\r\n]+
+    / COMMENT
+
+NL
+    = '\n'
+    / '\r' '\n'?
+
+COMMENT
+    = '#' [^\r\n]*
+
+TERM
+    = _ !EndKeyword
+    / _ COMMENT? !.
+    / _ COMMENT? NL __
+
+EXPANSION_START
+    = '{{'
+
+EXPANSION_END
+    = '}}'
+
+ident_start
+    = [a-z]i
+
+ident_rest
+    = [a-z0-9_-]i
+
+ident
+    = !Keyword name:$( ident_start ident_rest* ) { return name; }
+
+//
+// Keywords
+
+Keyword
+    = IfKeyword
+    / ThenKeyword
+    / ElseKeyword
+    / EndKeyword
+
+IfKeyword       = 'if'      !ident_rest
+ThenKeyword     = 'then'    !ident_rest
+ElseKeyword     = 'else'    !ident_rest
+EndKeyword      = 'end'     !ident_rest
