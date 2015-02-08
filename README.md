@@ -1,3 +1,109 @@
+## 
+
+The format of a plan is:
+
+    inputs:
+    [input directives]
+
+    actions:
+    [action directives]
+    
+Generally speaking, input directives are variable-setting directives like `set`, `prompt` and `yesno`, and action directives are those which actually do the work, such as `copy`, `tree` and `template`.
+
+When executing a plan, all `inputs` sections will be executed in source order, followed by the `actions` sections.
+
+## Directives
+
+### Inputs
+
+#### `prompt`
+
+  * `name`: 
+  * `prompt`: 
+  * `default`: 
+  * `filter`: 
+  * `postfilter`:
+  * `validate`:
+
+#### `set`
+
+  * `name`:
+  * `value`:
+
+#### `yesno`
+
+  * `name`:
+  * `prompt`:
+  * `default`:
+
+### Actions
+
+#### `copy`
+
+Copy a single file from the template to the target directory.
+
+  * `src`: source file __(required)__
+  * `dest`: destination file __(required)__
+
+#### `dir`
+
+Create a (possibly nested) subdirectory directory in in the target directory.
+
+  * `name`: directory name __(required)__
+
+#### `shell`
+
+Execute a shell command. The working directory will be the target directory.
+
+  * `cmd`: shell command to execute __(required)__
+
+#### `template`
+
+Perform template substitution in a single file, either in-place or by copy.
+
+  * `src`: source template file
+  * `dest`: destination file
+  * `inplace`: in-place file
+  
+If `src` and `dest` are specified, `src` will be copied from the template path to `dest` inside the target directory, with all template expressions expanded.
+
+`inplace`, if specified, is relative to the target directory. The file will be opened, template expressions expanded, and the updated file saved back to the same path.
+
+`src`/`dest` and `inplace` are mutually exclusive.
+
+For more information about expression/template syntax, see below.
+
+#### `tree`
+
+Copy an entire tree of files from the template to the target directory.
+
+  * `src`: source directory, relative to template (default: `.`)
+  * `dest`: destination directory, relative to target (default: `.`)
+  
+## Expression Syntax
+
+## Template Syntax
+
+A template is simply a text file, optionally containing moustache-delimited (`{{ ... }}`) expressions. For example, evaluating the following template:
+
+    {
+      "name": "{{ $name | downcase() }}"
+    }
+    
+with an environment of `{ "name": "Sauron" }` yields:
+
+    {
+      "name": "sauron"
+    }
+    
+All variables currently defined by the template plan are available for use in templates.
+
+
+
+
+
+
+
 # template-anything
 
 Turn any git repository into a project template!
