@@ -1,3 +1,27 @@
+# template-anything
+
+Turn any git repository into a project template! 
+
+But sir it sounds like you've just reinvented `git clone`!
+
+
+## Installation
+
+    npm install -g template-anything
+
+## Usage
+
+    $ ta <template> <target>
+
+`template` can be either a git URL or a path to a local directory. So, to start a new project based on my `site-template` template you would do this:
+
+    $ ta git@github.com:jaz303/site-template.git my-new-site
+
+That's a bit of mouthful so there is special shortcut syntax for using templates hosted on Github:
+
+    $ ta jaz303/site-template my-new-site
+
+
 ## 
 
 The format of a plan is:
@@ -45,17 +69,23 @@ Copy a single file from the template to the target directory.
   * `src`: source file __(required)__
   * `dest`: destination file __(required)__
 
+Example: `copy src: foo.txt, dest: bar.txt`
+
 #### `dir`
 
 Create a (possibly nested) subdirectory directory in in the target directory.
 
   * `name`: directory name __(required)__
 
+Example: `dir name: a/b/c`
+
 #### `shell`
 
 Execute a shell command. The working directory will be the target directory.
 
   * `cmd`: shell command to execute __(required)__
+
+Example: `shell cmd: "git init && git add . && git commit -m 'Initial'"`
 
 #### `template`
 
