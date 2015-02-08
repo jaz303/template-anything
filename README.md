@@ -1,9 +1,10 @@
 # template-anything
 
-Turn any git repository into a project template! 
+Turn any git repository into a project template! Just upload it to Github - or any other publicly accessible Git URL - and then use the `ta` command to create new instances of it.
 
-But sir it sounds like you've just reinvented `git clone`!
+"Sir that sounds great but it sounds like you've just reinvented `git clone`."
 
+In it's simplest use-case, `template-anything` indeed creates a new project by performing a simple copy of the template. But the key to 
 
 ## Installation
 
@@ -21,8 +22,53 @@ That's a bit of mouthful so there is special shortcut syntax for using templates
 
     $ ta jaz303/site-template my-new-site
 
+## Example plan.tpl
 
-## 
+## plan.tpl
+
+```
+inputs:
+
+# Get project name from the user
+prompt project_name, prompt: "Project name: ",
+                     default: "site-template"
+
+# Ask user if they'd like to create a git repo
+yesno create_repo, prompt: "Create git repo?",
+                   default: 1
+
+actions:
+
+# Copy everything from 'contents', within the template directory,
+# to the target directory.
+tree contents
+
+# Perform in-place template substitions to the file package.json,
+# located within the target directory
+template inplace: package.json
+
+# Shell command!
+shell "npm install"
+
+# Check to see if user wanted to create a git repo...
+if $create_repo then
+  # ... if they did, copy in a .gitignore file...
+    copy optional/gitignore, .gitignore
+    # ... and initialize the repo
+    shell "git init"
+    shell "git add ."
+    shell "git commit -m 'First commit'"
+end
+```
+
+
+### Terminology
+
+`template path` is the source directory of the original template.
+
+`target directory` is the target directory where we are creating our new project.
+
+### Format
 
 The format of a plan is:
 
@@ -35,6 +81,8 @@ The format of a plan is:
 Generally speaking, input directives are variable-setting directives like `set`, `prompt` and `yesno`, and action directives are those which actually do the work, such as `copy`, `tree` and `template`.
 
 When executing a plan, all `inputs` sections will be executed in source order, followed by the `actions` sections.
+
+### Syntax
 
 ## Directives
 
@@ -127,56 +175,3 @@ with an environment of `{ "name": "Sauron" }` yields:
     }
     
 All variables currently defined by the template plan are available for use in templates.
-
-
-
-
-
-
-
-# template-anything
-
-Turn any git repository into a project template!
-
-## Examples
-
-```
-inputs:
-
-# Get project name from the user
-prompt project_name, prompt: "Project name: ",
-                     default: "site-template"
-
-# Ask user if they'd like to create a git repo
-yesno create_repo, prompt: "Create git repo?",
-                   default: 1
-
-actions:
-
-# Copy everything from 'contents', within the template directory,
-# to the target directory.
-tree contents
-
-# Perform in-place template substitions to the file package.json,
-# located within the target directory
-template inplace: package.json
-
-# Shell command!
-shell "npm install"
-
-# Check to see if user wanted to create a git repo...
-if $create_repo then
-	# ... if they did, copy in a .gitignore file...
-    copy optional/gitignore, .gitignore
-    # ... and initialize the repo
-    shell "git init"
-    shell "git add ."
-    shell "git commit -m 'First commit'"
-end
-```
-
-## TODO
-
-  - [ ] add source dir, target dir, target basename to default env
-  - [ ] dictionary type + indexing syntax
-  - [ ] user defaults dictionary JSON
