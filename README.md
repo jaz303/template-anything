@@ -18,7 +18,7 @@ The key to `template-anything`'s power is that its behaviour can be fully custom
 
     npm install -g template-anything
 
-## Usage
+## Usage - using an existing template
 
 To scaffold a project from an existing template use the command:
 
@@ -32,35 +32,46 @@ That's a bit of mouthful so there is special shortcut syntax for using templates
 
     $ ta jaz303/site-template projects/my-new-site
 
-## Creating a template
+## Usage - creating a template
 
-## Example plan.tpl
+To create a template all you need to do is create a directory structure containing your template, (optionally) add a `plan.tpl` declaring the operations to be performed when the template is invoked, and then upload it to a publicly-accessible Git URL.
+
+If `plan.tpl` is omitted the default behaviour is to copy the contents of the template to the target directory.
+
+Here's an example `plan.tpl`:
 
 ```
 inputs:
 
 # Get project name from the user
+# The response will be stored in $project_name
 prompt project_name, prompt: "Project name: ",
                      default: "site-template"
 
 # Ask user if they'd like to create a git repo
+# The response will be stored in $create_repo
 yesno create_repo, prompt: "Create git repo?",
                    default: 1
 
 actions:
 
 # Copy everything from 'contents', within the template directory,
-# to the target directory.
+# to the target directory. This directive is using positional,
+# rather than named, parameters. The default destination for
+# tree is the target directory so in this case it doesn't need
+# to specified.
 tree contents
 
 # Perform in-place template substitions to the file package.json,
-# located within the target directory
+# located within the target directory. All variables are available
+# when performing template substitutions.
 template inplace: package.json
 
 # Shell command!
 shell "npm install"
 
-# Check to see if user wanted to create a git repo...
+# Conditional blocks are supported; we only want to create a git
+# repo if the user requested it:
 if $create_repo then
   # ... if they did, copy in a .gitignore file...
     copy optional/gitignore, .gitignore
@@ -71,10 +82,7 @@ if $create_repo then
 end
 ```
 
-## plan.tpl
-
-
-
+## Template Plans in Depth
 
 ### Terminology
 
@@ -94,85 +102,49 @@ The format of a plan is:
     
 Generally speaking, input directives are variable-setting directives like `set`, `prompt` and `yesno`, and action directives are those which actually do the work, such as `copy`, `tree` and `template`.
 
-When executing a plan, all `inputs` sections will be executed in source order, followed by the `actions` sections.
+When executing a plan, each `inputs` section will be executed in source order, followed by each `actions` section.
 
 ### Syntax
 
-## Directives
+To invoke a directive simply write its name:
 
-### Inputs
+    tree
 
-#### `prompt`
+Arguments are separated with commas and can specified either positionally:
 
-  * `name`: 
-  * `prompt`: 
-  * `default`: 
-  * `filter`: 
-  * `postfilter`:
-  * `validate`:
+    tree ".", "."
 
-#### `set`
+Or by name:
 
-  * `name`:
-  * `value`:
+    tree src: "contents", dest: "."
 
-#### `yesno`
+You can mix both styles in a single invocation if you like, with positional arguments appearing first:
 
-  * `name`:
-  * `prompt`:
-  * `default`:
+    prompt my_val, prompt: "please enter a value: ", default: 10
 
-### Actions
+Arguments may be split over multiple lines:
 
-#### `copy`
+    prompt my_val, 
+           prompt: "please enter a value: ",
+           default: 10
 
-Copy a single file from the template to the target directory.
+Conditional blocks are supported and they look like this:
 
-  * `src`: source file __(required)__
-  * `dest`: destination file __(required)__
+    if {expression} then
+        # execute these directives if {expression} is truthy
+    end
 
-Example: `copy src: foo.txt, dest: bar.txt`
+Else blocks are supported:
 
-#### `dir`
+    if {expression} then
+        # truthy
+    else
+        # falsey
+    end
 
-Create a (possibly nested) subdirectory directory in in the target directory.
+Empty strings, empty arrays and zero are considered false; everything else is true. `template-anything` does not have a boolean type.
 
-  * `name`: directory name __(required)__
-
-Example: `dir name: a/b/c`
-
-#### `shell`
-
-Execute a shell command. The working directory will be the target directory.
-
-  * `cmd`: shell command to execute __(required)__
-
-Example: `shell cmd: "git init && git add . && git commit -m 'Initial'"`
-
-#### `template`
-
-Perform template substitution in a single file, either in-place or by copy.
-
-  * `src`: source template file
-  * `dest`: destination file
-  * `inplace`: in-place file
-  
-If `src` and `dest` are specified, `src` will be copied from the template path to `dest` inside the target directory, with all template expressions expanded.
-
-`inplace`, if specified, is relative to the target directory. The file will be opened, template expressions expanded, and the updated file saved back to the same path.
-
-`src`/`dest` and `inplace` are mutually exclusive.
-
-For more information about expression/template syntax, see below.
-
-#### `tree`
-
-Copy an entire tree of files from the template to the target directory.
-
-  * `src`: source directory, relative to template (default: `.`)
-  * `dest`: destination directory, relative to target (default: `.`)
-  
-## Expression Syntax
+### Expression Syntax
 
 The basic expression literals are:
 
@@ -194,7 +166,7 @@ In a pipeline the result of the previous operation is passed as the first argume
 
 Strings can contain template interpolations e.g. `"Mr {{ $name | upcase() }}"`.
 
-## Template Syntax
+### Template Syntax
 
 A template is simply a text file, optionally containing moustache-delimited (`{{ ... }}`) expressions. For example, evaluating the following template:
 
@@ -207,75 +179,149 @@ with an environment of `{ "name": "Sauron" }` yields:
     {
       "name": "sauron"
     }
+
+### Built-in Directives
+
+#### Inputs
+
+##### `prompt`
+
+  * `name`: 
+  * `prompt`: 
+  * `default`: 
+  * `filter`: 
+  * `postfilter`:
+  * `validate`:
+
+##### `set`
+
+  * `name`:
+  * `value`:
+
+##### `yesno`
+
+  * `name`:
+  * `prompt`:
+  * `default`:
+
+#### Actions
+
+##### `copy`
+
+Copy a single file from the template to the target directory.
+
+  * `src`: source file __(required)__
+  * `dest`: destination file __(required)__
+
+Example: `copy src: foo.txt, dest: bar.txt`
+
+##### `dir`
+
+Create a (possibly nested) subdirectory directory in in the target directory.
+
+  * `name`: directory name __(required)__
+
+Example: `dir name: a/b/c`
+
+##### `shell`
+
+Execute a shell command. The working directory will be the target directory.
+
+  * `cmd`: shell command to execute __(required)__
+
+Example: `shell cmd: "git init && git add . && git commit -m 'Initial'"`
+
+##### `template`
+
+Perform template substitution in a single file, either in-place or by copy.
+
+  * `src`: source template file
+  * `dest`: destination file
+  * `inplace`: in-place file
+  
+If `src` and `dest` are specified, `src` will be copied from the template path to `dest` inside the target directory, with all template expressions expanded.
+
+`inplace`, if specified, is relative to the target directory. The file will be opened, template expressions expanded, and the updated file saved back to the same path.
+
+`src`/`dest` and `inplace` are mutually exclusive.
+
+For more information about expression/template syntax, see below.
+
+##### `tree`
+
+Copy an entire tree of files from the template to the target directory.
+
+  * `src`: source directory, relative to template (default: `.`)
+  * `dest`: destination directory, relative to target (default: `.`)
     
 All variables currently defined by the template plan are available for use in templates.
 
-## Functions
+### Built-in Functions
 
-### Array
+#### Array
 
-#### `join(subject, str)`
+##### `join(subject, str)`
 
 Join elements of `subject` with string `str`.
 
-### Comparison
+#### Comparison
 
-#### `eq(subject, other)`
+##### `eq(subject, other)`
 
 Compare `subject` with `other`. Returns `1` if equal, `0` otherwise. Equivalent to Javascript's `==` operator.
 
-#### `is(subject, other)`
+##### `is(subject, other)`
 
 Compare identity of `subject` with `other`. Returns `1` if identical, `0` otherwise. Equivalent to Javascript's `===` operator.
 
-### Math
+#### Math
 
-#### `random()`
+##### `random()`
 
 Return a random number between `0` and `1`.
 
-#### `random(n)`
+##### `random(n)`
 
 Return a random integer between `0` and `n-1`, inclusive.
 
-#### `random(min, max)`
+##### `random(min, max)`
 
 Return a random integer between `min` and `max-1`, inclusive.
 
-### String
+#### String
 
-#### `append(subject, suffix)`
+##### `append(subject, suffix)`
 
 Append `suffix` to `subject`.
 
-#### `prepend(subject, prefix)`
+##### `prepend(subject, prefix)`
 
 Prepend `prefix` to `subject`.
 
-#### `replace(subject, needle, replacement)`
+##### `replace(subject, needle, replacement)`
 
 Replace all occurrences `needle` with `replacement` in `subject`.
 
-#### `dasherize(subject)`
+##### `dasherize(subject)`
 
 Replace all runs of 1 or more spaces in `subject` with dashes.
 
-#### `substr(subject, start, length)`
+##### `substr(subject, start, length)`
 
 Equivalent to Javascripts `substr()` method.
 
-#### `substring(subject, start, end)`
+##### `substring(subject, start, end)`
 
 Equivalent to Javascripts `substring()` method.
 
-#### `downcase(subject)`
+##### `downcase(subject)`
 
 Convert `subject` to lower case.
 
-#### `upcase(subject)`
+##### `upcase(subject)`
 
 Convert `subject` to upper case.
 
-#### `trim(subject)`
+##### `trim(subject)`
 
 Remove leading and trailing space from `subject`.
