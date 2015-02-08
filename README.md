@@ -1,10 +1,15 @@
 # template-anything
 
-Turn any git repository into a project template! Just upload it to Github - or any other publicly accessible Git URL - and then use the `ta` command to create new instances of it.
+Turn any git repository into a project template! Just upload your template to Github - or any other publicly accessible Git URL - and then use the `ta` command to generate a new project instance.
 
-"Sir that sounds great but it sounds like you've just reinvented `git clone`."
+## That sounds like you've just reinvented `git clone`...
 
-In it's simplest use-case, `template-anything` indeed creates a new project by performing a simple copy of the template. But the key to 
+The key to `template-anything`'s power is that its behaviour can be fully customized by adding a _template plan_ to your template. This plan, written in a file called `plan.tpl` in your template's root directory, can gather user input, set variables and orchestrate necessary filesystem operations to configure a new project. `template-anything` also includes a template expansion language that allows file contents to be customized based on user input.
+
+## Core Principles
+  
+  * __Simple:__
+  * __Fat-core/no plugins:__
 
 ## Installation
 
@@ -12,19 +17,21 @@ In it's simplest use-case, `template-anything` indeed creates a new project by p
 
 ## Usage
 
+To scaffold a project from an existing template use the command:
+
     $ ta <template> <target>
 
-`template` can be either a git URL or a path to a local directory. So, to start a new project based on my `site-template` template you would do this:
+`template` can be either a git URL or a path to a local directory, and `target` should be a path to a non-existant target directory. So, to start a new project based on my `site-template` template and put it in `projects/my-new-site` you would do this:
 
-    $ ta git@github.com:jaz303/site-template.git my-new-site
+    $ ta git@github.com:jaz303/site-template.git projects/my-new-site
 
 That's a bit of mouthful so there is special shortcut syntax for using templates hosted on Github:
 
-    $ ta jaz303/site-template my-new-site
+    $ ta jaz303/site-template projects/my-new-site
+
+## Creating a template
 
 ## Example plan.tpl
-
-## plan.tpl
 
 ```
 inputs:
@@ -60,6 +67,10 @@ if $create_repo then
     shell "git commit -m 'First commit'"
 end
 ```
+
+## plan.tpl
+
+
 
 
 ### Terminology
@@ -176,7 +187,7 @@ Expressions can be filtered through functions using the pipeline syntax:
 
     $name | prepend("hello ") | upcase()
 
-Given `$name => "Bob"` the above would evaluate to "HELLO BOB".
+In a pipeline the result of the previous operation is passed as the first argument to the next function (in the function documentation below, this is denoted in  parameter lists by `subject`). Given `$name => "Bob"` the example above would evaluate to "HELLO BOB".
 
 Strings can contain template interpolations e.g. `"Mr {{ $name | upcase() }}"`.
 
@@ -197,8 +208,6 @@ with an environment of `{ "name": "Sauron" }` yields:
 All variables currently defined by the template plan are available for use in templates.
 
 ## Functions
-
-When used in a pipeline, the result of the previous operation is passed as the first argument to the next function. It is usually denoted in function parameter lists by `subject`.
 
 ### Array
 
