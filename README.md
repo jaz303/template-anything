@@ -162,9 +162,9 @@ Copy an entire tree of files from the template to the target directory.
 
 The basic expression literals are:
 
-  * string: "able was I ere I saw elba"
-  * integer: 42
-  * symbols: foo/bar/baz.txt
+  * string: `"able was I ere I saw elba"`
+  * integer: `42`
+  * symbols: `foo/bar/baz.txt`
 
 Symbols can include the special characters `./_-`, making it possible to express filenames without wrapping them in quotes. They can also include `:` as long as it does not appear at the end of the symbol.
 
@@ -174,11 +174,11 @@ Arrays are denoted with the familiar syntax `[1, 2, 3]`. Arrays are not particul
 
 Expressions can be filtered through functions using the pipeline syntax:
 
-    `$name | prepend("hello ") | upcase()`
+    $name | prepend("hello ") | upcase()
 
 Given `$name => "Bob"` the above would evaluate to "HELLO BOB".
 
-Strings can contain template interpolations e.g. "Mr {{ $name | upcase() }}".
+Strings can contain template interpolations e.g. `"Mr {{ $name | upcase() }}"`.
 
 ## Template Syntax
 
@@ -195,3 +195,75 @@ with an environment of `{ "name": "Sauron" }` yields:
     }
     
 All variables currently defined by the template plan are available for use in templates.
+
+## Functions
+
+When used in a pipeline, the result of the previous operation is passed as the first argument to the next function. It is usually denoted in function parameter lists by `subject`.
+
+### Array
+
+#### `join(subject, str)`
+
+Join elements of `subject` with string `str`.
+
+### Comparison
+
+#### `eq(subject, other)`
+
+Compare `subject` with `other`. Returns `1` if equal, `0` otherwise. Equivalent to Javascript's `==` operator.
+
+#### `is(subject, other)`
+
+Compare identity of `subject` with `other`. Returns `1` if identical, `0` otherwise. Equivalent to Javascript's `===` operator.
+
+### Math
+
+#### `random()`
+
+Return a random number between `0` and `1`.
+
+#### `random(n)`
+
+Return a random integer between `0` and `n-1`, inclusive.
+
+#### `random(min, max)`
+
+Return a random integer between `min` and `max-1`, inclusive.
+
+### String
+
+#### `append(subject, suffix)`
+
+Append `suffix` to `subject`.
+
+#### `prepend(subject, prefix)`
+
+Prepend `prefix` to `subject`.
+
+#### `replace(subject, needle, replacement)`
+
+Replace all occurrences `needle` with `replacement` in `subject`.
+
+#### `dasherize(subject)`
+
+Replace all runs of 1 or more spaces in `subject` with dashes.
+
+#### `substr(subject, start, length)`
+
+Equivalent to Javascripts `substr()` method.
+
+#### `substring(subject, start, end)`
+
+Equivalent to Javascripts `substring()` method.
+
+#### `downcase(subject)`
+
+Convert `subject` to lower case.
+
+#### `upcase(subject)`
+
+Convert `subject` to upper case.
+
+#### `trim(subject)`
+
+Remove leading and trailing space from `subject`.
