@@ -160,6 +160,26 @@ Copy an entire tree of files from the template to the target directory.
   
 ## Expression Syntax
 
+The basic expression literals are:
+
+  * string: "able was I ere I saw elba"
+  * integer: 42
+  * symbols: foo/bar/baz.txt
+
+Symbols can include the special characters `./_-`, making it possible to express filenames without wrapping them in quotes. They can also include `:` as long as it does not appear at the end of the symbol.
+
+Variable references are dollar-prefixed and evaluate to the contents of the variable. For example: `$name` evaluates to the value of the variable `name`.
+
+Arrays are denoted with the familiar syntax `[1, 2, 3]`. Arrays are not particularly useful yet but as `template-anything` grows to support repetition and iteration I expect their importance to increase.
+
+Expressions can be filtered through functions using the pipeline syntax:
+
+    `$name | prepend("hello ") | upcase()`
+
+Given `$name => "Bob"` the above would evaluate to "HELLO BOB".
+
+Strings can contain template interpolations e.g. "Mr {{ $name | upcase() }}".
+
 ## Template Syntax
 
 A template is simply a text file, optionally containing moustache-delimited (`{{ ... }}`) expressions. For example, evaluating the following template:
