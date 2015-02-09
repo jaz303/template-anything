@@ -10,7 +10,9 @@ The key to `template-anything`'s power is that its behaviour can be fully custom
   
   * __Simple:__ template plans should be straightforward to both read and write. Ease of writing matters because authoring templates is a mundane operation and users should be able to dive in, make a template and get out with minimal time investment. Ease of reading matters because template plans should be easy to review in terms of both fitness for purpose and security.
 
-  * __Fat-core/no plugins:__ everything required to scaffold any kind of project should be included in the core distribution. Common high-level operations should be extracted to their own directives and contributed back to the core project. __Not supporting plugins is a feature__, and will hopefully a) guarantee that templates will work anywhere and b) make it easy to review `template-anything`'s suitability for a given project, without having to trawl the web for a bunch of plugins.
+  * __Fat-core/no plugins:__ everything required to scaffold any kind of project should be included in the core distribution. Common high-level operations should be extracted to their own directives and contributed back to the core tool. __Not supporting plugins is a feature__, and will hopefully a) guarantee that templates will work anywhere and b) make it easy to review `template-anything`'s suitability for a given use-case - without having to trawl the web for a bunch of plugins.
+
+  * __No centralised registries:__ publishing a template should be as simple as publishing a git repository - there is no reason to make users sign up to a 3rd party service.
 
 `template-anything`s design has been strongly influenced by [Ansible](http://www.ansible.com/home).
 
@@ -31,6 +33,8 @@ To scaffold a project from an existing template use the command:
 That's a bit of mouthful so there is special shortcut syntax for using templates hosted on Github:
 
     $ ta jaz303/site-template projects/my-new-site
+
+Once you've run this command and answered a couple of questions about your new project you will have a brand new front end web project all ready to play with based on PHP, browserify, SCSS, livereload and spinup. This is the way I like to work on simple frontend builds, but maybe you prefer something else. Read on to learn how to create your own project templates compatible with `template-anything`...
 
 ## Usage - creating a template
 
