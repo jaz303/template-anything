@@ -96,7 +96,7 @@ end
 
 ### Format
 
-The format of a plan is:
+The basic format of `plan.tpl` is:
 
     inputs:
     [input directives]
@@ -104,7 +104,7 @@ The format of a plan is:
     actions:
     [action directives]
     
-Generally speaking, input directives are variable-setting directives like `set`, `prompt` and `yesno`, and action directives are those which actually do the work, such as `copy`, `tree` and `template`.
+Generally speaking, input directives are variable-setting directives like `set`, `prompt` and `yesno`, and action directives are those which actually do the work, such as `copy`, `tree` and `template`. `template-anything` doesn't actually enforce which directives are valid for each section, but its good practice to maintain the distinction.
 
 When executing a plan, each `inputs` section will be executed in source order, followed by each `actions` section.
 
@@ -146,7 +146,7 @@ Else blocks are supported:
         # falsey
     end
 
-Empty strings, empty arrays and zero are considered false; everything else is true. `template-anything` does not have a boolean type.
+Empty strings, empty arrays and zero are considered false; everything else is true. `template-anything` does not have a dedicated boolean type.
 
 ### Expression Syntax
 
@@ -162,11 +162,13 @@ Variable references are dollar-prefixed and evaluate to the contents of the vari
 
 Arrays are denoted with the familiar syntax `[1, 2, 3]`. Arrays are not particularly useful yet but as `template-anything` grows to support repetition and iteration I expect their importance to increase.
 
+Function calls are written simply as `function(arg1, arg2, ... argn)`; arguments can be any valid expression.
+
 Expressions can be filtered through functions using the pipeline syntax:
 
     $name | prepend("hello ") | upcase()
 
-In a pipeline the result of the previous operation is passed as the first argument to the next function (in the function documentation below, this is denoted in  parameter lists by `subject`). Given `$name => "Bob"` the example above would evaluate to "HELLO BOB".
+In a pipeline the result of the previous operation is passed as the first argument to the next function (in the function documentation below, this is denoted in  parameter lists by `subject`). For example, given that variable `$name` is `"Bob"` the code above would evaluate to "HELLO BOB".
 
 Strings can contain template interpolations e.g. `"Mr {{ $name | upcase() }}"`.
 
