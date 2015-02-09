@@ -385,7 +385,7 @@ This wrapper exposes the `copy` directive to the scripting environment which acc
 Available builder functions:
 
   * `param(name, [opts])`: add a new parameter to this directive with given `name`; this is the same name that will be used when passing a corresponding argument by name from within a template plan. The order of `param()` calls on the builder determines the order that positional arguments will be assigned.
-  * `requiredParams(paramGroups)`: used to denote that the directive accepts two or more groups of mutually exclusive arguments (see the `template` directive for an example). `paramGroups` is an array wherein each entry is an object mapping parameter names to booleans, denoting whether not an argument with that name must (`true`) or must not (`false`) be present. When the directive is invoked the list of constraints will be searched and the invocation will succeed if and only if one parameter group matches the supplied arguments.
+  * `requiredParams(paramGroups)`: used to denote that the directive accepts two or more groups of mutually exclusive arguments (see the `template` directive for an example). `paramGroups` is an array wherein each entry is an object mapping parameter names to booleans, denoting whether not an argument with that name must (`true`) or must not (`false`) be present. When the directive is invoked, this list of constraints will be searched and the invocation will succeed if and only if one parameter group matches the supplied arguments.
   * `handler(fn)`: register `fn` as the handler for this directive; this should have the signature `(ctx, env, opts, cb)`, as described above.
 
 Supported parameter option keys:
