@@ -243,6 +243,14 @@ Create a (possibly nested) subdirectory directory in in the target directory.
 
 Example: `dir name: a/b/c`
 
+##### `echo`
+
+Write a message to standard output.
+
+  * `msg`: message to write; newline will be added __(required)__
+
+Example: `echo "hello world!"`
+
 ##### `shell`
 
 Execute a shell command. The working directory will be the target directory.
