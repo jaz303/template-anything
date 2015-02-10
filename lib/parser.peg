@@ -162,6 +162,7 @@ Number
 
 Integer
     = val:$( [1-9] [0-9]* ) { return parseInt(val, 10); }
+    / $( '0'+ ) ![1-9] { return 0; }
 
 Variable
     = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
