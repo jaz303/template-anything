@@ -235,6 +235,14 @@ Copy a single file from the template to the target directory.
 
 Example: `copy src: foo.txt, dest: bar.txt`
 
+##### `create_git_repo`
+
+Initialise a git repository in the target directory and optionally commit its contents.
+
+  * `commit`: set to 1 or string to commit target directory to git repo; when a string is specified this will be the commit message.
+
+Example: `create_git_repo commit: "Initial commit!"`
+
 ##### `dir`
 
 Create a (possibly nested) subdirectory directory in in the target directory.
