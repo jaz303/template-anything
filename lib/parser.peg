@@ -91,9 +91,12 @@ DirectiveNamedArgs
     }
 
 DirectiveNamedArgPair
-    = key:ident ':' _ value:ScriptExpression {
+    = key:DirectiveNamedArgArgName ':' _ value:ScriptExpression {
         return { key: key, value: value };
     }
+
+DirectiveNamedArgArgName
+    = $( ident_start ident_rest* )
 
 //
 // Expression Parsing
