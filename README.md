@@ -212,6 +212,20 @@ with an environment of `{ "name": "Sauron" }` yields:
 
 #### Actions
 
+##### `append_line`
+
+Append a line to `file`. `file` will be created if it does not exist.
+
+  * `file`: target file __(required)__
+  * `line`: line of text append; trailing newline will be added __(required)__
+
+##### `append_string`
+
+Append a string to `file`. `file` will be created if it does not exist.
+
+  * `file`: target file __(required)__
+  * `string`: string of text append __(required)__
+
 ##### `copy`
 
 Copy a single file from the template to the target directory.
