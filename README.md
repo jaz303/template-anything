@@ -192,23 +192,37 @@ with an environment of `{ "name": "Sauron" }` yields:
 
 ##### `prompt`
 
-  * `name`: 
-  * `prompt`: 
-  * `default`: 
-  * `filter`: 
-  * `postfilter`:
-  * `validate`:
+Prompt the user for input and assign the response to a variable.
+
+  * `name`: name of variable to assign; do not include the `$` prefix __(required)__
+  * `prompt`: prompt to display
+  * `default`: default value to be used if user does not enter anything
+  * `filter`: a partial pipeline that will be applied to the submitted value
+  * `postfilter`: a partial pipeline that will be applied to the submitted value, after validation
+  * `validate`: a partial pipeline that will be used to validate the returned value. If the pipeline is falsey the user will be prompted to re-enter the value.
+
+Example:
+
+    prompt username,
+           prompt: "Enter username: ",
+           filter: | downcase()
 
 ##### `set`
 
-  * `name`:
-  * `value`:
+Sets a variable to a specified value.
+
+  * `name`: name of variable to assign; do not include the `$` prefix __(required)__
+  * `value`: value to assign __(required)__
+
+Example: `set name, "Jason"`
 
 ##### `yesno`
 
-  * `name`:
-  * `prompt`:
-  * `default`:
+  * `name`: name of variable to assign; do not include the `$` prefix __(required)__
+  * `prompt`: prompt to display
+  * `default`: default value (should be either `1` or `0`)
+
+Example: `prompt create_git_repo, prompt: "Create git repository? "`
 
 #### Actions
 
