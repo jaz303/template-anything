@@ -17,11 +17,11 @@
     "ncp": "~0.6.0",
     "rimraf": "~2.2.8",
     "shell-escape": "^0.1.0",
-    "tape": "^3.0.0",
     "tmp": "0.0.24"
   },
   "devDependencies": {
-    "pegjs": "~0.8.0"
+    "pegjs": "~0.8.0",
+    "tape": "^3.0.0"
   },
   "repository": {
     "type": "git",
