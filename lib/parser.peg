@@ -117,7 +117,7 @@ Pipeline
     }
 
 PartialPipeline
-    = '|' __ head:FunctionCall tail:(__ '|' __ FunctionCall)+ {
+    = '|' __ head:FunctionCall tail:(__ '|' __ FunctionCall)* {
         return mk(T.PARTIAL_PIPELINE, {
             list: [head].concat(tail.map(function(i) { return i[3]; }))
         });
