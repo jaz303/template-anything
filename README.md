@@ -362,6 +362,14 @@ Convert `subject` to upper case.
 
 Remove leading and trailing space from `subject`.
 
+### Built-in Variables
+
+`template-anything` defines the following variables:
+
+  * `$TEMPLATE_PATH`: absolute path to template source
+  * `$TARGET_PATH`: absolute path to target directory
+  * `$TARGET_NAME`: basename of target directory
+
 ## Contributing
 
 ### Adding a function
