@@ -172,6 +172,16 @@ In a pipeline the result of the previous operation is passed as the first argume
 
 Strings can contain template interpolations e.g. `"Mr {{ $name | upcase() }}"`.
 
+Some actions (notably `prompt`) accept callbacks in the form of "partial pipelines". A partial pipeline is a standard pipeline with the initial value omitted; this value will instead be supplied by the directive itself when it invokes the callback. The syntax for a partial pipeline is thus:
+
+    | downcase() | dasherize()
+
+And it would be used like this:
+
+    `prompt username, filter: | trim() | downcase() | dasherize()`
+
+The `prompt` directive would take the user's input and then pass it through the `filter` partial pipeline, and use the pipeline's output value as the value to assign to the `username` variable.
+
 ### Template Syntax
 
 A template is simply a text file, optionally containing moustache-delimited (`{{ ... }}`) expressions. For example, evaluating the following template:
