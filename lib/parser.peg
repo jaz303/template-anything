@@ -5,6 +5,21 @@
         opts.type = thing;
         return opts;
     }
+
+    function mkMemberAccess(variable, members) {
+        var prev = mk(T.VARIABLE, {name: variable});
+        members.forEach(function(m) {
+            if (m.t === 'static') {
+                prev = mk(T.STATIC_MEMBER, {
+                    subject: prev,
+                    member: m.name
+                });
+            } else {
+                throw new Error("unknown member type!");
+            }
+        });
+        return prev;
+    }
 }
 
 //
@@ -145,6 +160,7 @@ Raw
 Atom
     = a:FunctionCall _  { return a; }
     / a:Number _        { return a; }
+    / a:UserDefault _   { return a; }
     / a:Variable _      { return a; }
     / a:String _        { return a; }
     / a:Symbol _        { return a; }
@@ -164,9 +180,17 @@ Integer
     = val:$( [1-9] [0-9]* ) { return parseInt(val, 10); }
     / $( '0'+ ) ![1-9] { return 0; }
 
+UserDefault
+    = '$' m:member+ {
+        return mkMemberAccess('defaults', m);
+    }
+
 Variable
-    = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
-        return mk(T.VARIABLE, {name: name});
+    = v:simple_variable m:member+ {
+        return mkMemberAccess(v, m);
+    }
+    / v:simple_variable {
+        return mk(T.VARIABLE, {name: v});
     }
 
 String
@@ -254,6 +278,19 @@ ident_rest
 
 ident
     = !Keyword name:$( ident_start ident_rest* ) { return name; }
+
+simple_variable
+    = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
+        return name;
+    }
+
+member
+    = static_member
+
+static_member
+    = '.' name:$( ident_start ident_rest* ) {
+        return { t: 'static', name: name };
+    }
 
 //
 // Keywords
