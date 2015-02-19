@@ -106,12 +106,9 @@ DirectiveNamedArgs
     }
 
 DirectiveNamedArgPair
-    = key:DirectiveNamedArgArgName ':' _ value:ScriptExpression {
+    = key:key _ value:ScriptExpression {
         return { key: key, value: value };
     }
-
-DirectiveNamedArgArgName
-    = $( ident_start ident_rest* )
 
 //
 // Expression Parsing
@@ -165,6 +162,7 @@ Atom
     / a:String _        { return a; }
     / a:Symbol _        { return a; }
     / a:Array _         { return a; }
+    / a:Dictionary _    { return a; }
 
 FunctionCall
     = name:ident '(' _ args:AtomList? ')' {
@@ -226,17 +224,37 @@ SymbolChar
     = [a-z0-9\.\\/_-]i
 
 Array
-    = '[' _ items:AtomList? ']' {
-        return mk(T.ARRAY_LITERAL, {items: items});
+    = '[' __ items:AtomList? __ ']' {
+        return mk(T.ARRAY_LITERAL, {items: items || []});
     }
 
 AtomList
-    = head:Atom _ tail:(',' _ Atom _)* {
+    = head:Atom _ tail:(',' __ Atom)* {
         var out = [head];
         for (var i = 0; i < tail.length; ++i) {
             out.push(tail[i][2]);
         }
         return out;
+    }
+
+Dictionary
+    = '{' __ items:DictionaryPairs? __ '}' {
+        return mk(T.DICTIONARY_LITERAL, {dict: items});
+    }
+
+DictionaryPairs
+    = head:DictionaryPair _ tail:(',' __ DictionaryPair)* {
+        var out = {};
+        out[head[0]] = head[1];
+        tail.forEach(function(t) {
+            out[t[2][0]] = t[2][1];
+        });
+        return out;
+    }
+
+DictionaryPair
+    = key:key _ value:Atom {
+        return [key, value];
     }
 
 //
@@ -278,6 +296,11 @@ ident_rest
 
 ident
     = !Keyword name:$( ident_start ident_rest* ) { return name; }
+
+key
+    = name:$( ident_start ident_rest* ) ':' {
+        return name;
+    }
 
 simple_variable
     = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
