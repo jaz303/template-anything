@@ -227,7 +227,7 @@ SymbolChar
 
 Array
     = '[' _ items:AtomList? ']' {
-        return mk(T.ARRAY, {items: items});
+        return mk(T.ARRAY_LITERAL, {items: items});
     }
 
 AtomList
