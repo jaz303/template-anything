@@ -142,14 +142,37 @@ FileTemplate
     = FileChunk*
 
 FileChunk
-    = Expansion
+    = TemplateExpansion
+    / TemplateCondition
     / Raw
 
-Expansion
+TemplateExpansion
     = EXPANSION_START __ exp:ScriptExpression __ EXPANSION_END { return exp; }
 
+TemplateCondition
+    = cond:TemplateIfClause alt:TemplateElseClause? TemplateEnd {
+        return mk(T.TEMPLATE_IF, {
+            condition: cond[0],
+            consequent: cond[1],
+            alternate: alt || []
+        });
+    }
+
+TemplateIfClause
+    = '{%' _ IfKeyword _ exp:ScriptExpression _ '%}' chunks:FileTemplate {
+        return [exp, chunks];
+    }
+
+TemplateElseClause
+    = '{%' _ ElseKeyword _ '%}' chunks:FileTemplate {
+        return chunks;
+    }
+
+TemplateEnd
+    = '{%' _ EndKeyword _ '%}'
+
 Raw
-    = $( [^{] / '{' !'{' )+
+    = $( [^{] / '{' ![{%] )+
 
 //
 // Atoms
@@ -202,7 +225,7 @@ String
 
 StringItem
     = $( StringChar+ )
-    / Expansion
+    / TemplateExpansion
 
 StringChar
     = '\\n'     { return "\n"; }
