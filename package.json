@@ -2,6 +2,7 @@
   "name": "template-anything",
   "version": "1.2.3",
   "description": "Turn any git repository into a project template!",
+  "keywords": ["template", "scaffold", "generator", "scripting", "project"],
   "scripts": {
     "test": "set -e; for t in test/*; do node $t; done"
   },
