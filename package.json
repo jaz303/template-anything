@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "docopt": "^0.4.0",
-    "git-clone": "0.0.4",
+    "git-clone": "^0.1.0",
     "iniparser": "~1.0.5",
     "mkdirp": "~0.5.0",
     "my-github-username": "~0.1.1",
