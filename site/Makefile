@@ -1,9 +1,9 @@
-BASE_URL ?= 
-CONTENT_DIR := content
-OUTPUT_DIR := output
+BASE_URL 	?= 
+CONTENT_DIR	:= content
+OUTPUT_DIR 	:= output
 
-MARKDOWN := $(shell find $(CONTENT_DIR) -name '*.md')
-HTML := $(patsubst $(CONTENT_DIR)/%.md, $(OUTPUT_DIR)/%.htm, $(MARKDOWN))
+MARKDOWN 	:= $(shell find $(CONTENT_DIR) -name '*.md')
+HTML 		:= $(patsubst $(CONTENT_DIR)/%.md, $(OUTPUT_DIR)/%.htm, $(MARKDOWN))
 
 all: output output/main.css copy_assets html
 
