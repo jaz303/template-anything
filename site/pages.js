@@ -2,38 +2,38 @@ module.exports = [
 	{	title: "Guide",
 		pages: [
 			{	title: "Introduction",
-				source: "content/introduction.md"
+				source: "index.md"
 			},
 			{	title: "Installation",
-				source: "content/installation.md"
+				source: "installation.md"
 			},
 			{	title: "Basic Usage",
-				source: "content/basic-usage.md"
+				source: "basic-usage.md"
 			},
 			{	title: "Tutorial",
-				source: "content/tutorial.md"
+				source: "tutorial.md"
 			}
 		]
 	},
 	{	title: "Reference",
 		pages: [
 			{	title: "Terminology",
-				source: "content/terminology.md"
+				source: "terminology.md"
 			},
 			{	title: "Syntax",
-				source: "content/syntax.md"
+				source: "syntax.md"
 			},
 			{	title: "Directives",
-				source: "content/directives.md"
+				source: "directives.md"
 			},
 			{	title: "Functions",
-				source: "content/functions.md"
+				source: "functions.md"
 			},
 			{	title: "Built-in Variables",
-				source: "content/built-in-variables.md"
+				source: "built-in-variables.md"
 			},
 			{	title: "Per-user Defaults",
-				source: "content/per-user-defaults.md"
+				source: "per-user-defaults.md"
 			}
 		]
 	}
