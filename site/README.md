@@ -8,6 +8,6 @@
 
   - [x] syntax highlighting
   - [ ] styling/CSS
-  - [ ] generate.js should generate a single file
+  - [x] generate.js should generate a single file
   - [ ] index page sections
   - [ ] generate relative URLs
