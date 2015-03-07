@@ -18,9 +18,11 @@ Adding a directive is a two-step process - firstly you must write the "raw" vers
 
 Create a new file in `lib/directives/raw` with the same name as your new directive. This file should export a single function with the signature:
 
-    module.exports = function(ctx, env, opts, cb) {
-        // ...
-    }
+```javascript
+module.exports = function(ctx, env, opts, cb) {
+    // ...
+}
+```
 
 The arguments are as follows:
 

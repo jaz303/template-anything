@@ -1,9 +1,21 @@
 
 var fs = require('fs');
 var index = require('./pages');
-var markdown = require('markdown').markdown;
+var marked = require('marked');
 var nav = "";
 var template = fs.readFileSync(__dirname + '/template.htm', 'utf8');
+
+marked.setOptions({
+	highlight: function(code, lang, callback) {
+	    require('pygmentize-bundled')({ lang: lang, format: 'html' }, code, function(err, result) {
+	    	if (err) {
+	    		callback(err);
+	    	} else {
+	    		callback(null, result.toString());		
+	    	}
+	    });
+	}
+});
 
 index.forEach(function(section) {
 	if (section.title) {
@@ -30,14 +42,17 @@ index.forEach(function(section) {
 	section.pages.forEach(function(p) {
 
 		var content = fs.readFileSync(p.sourcePath, 'utf8');
-		var html = markdown.toHTML(content);
+
+		marked(content, function(err, html) {
+		  if (err) throw err;
+
+		  var page = template
+		  			.replace('{{ content }}', html)
+		  			.replace('{{ nav }}', nav);
+
+		  // TODO: mkdirp?
+		  fs.writeFileSync(p.outputPath, page, 'utf8');
+		});
 		
-		var page = template
-					.replace('{{ content }}', html)
-					.replace('{{ nav }}', nav);
-
-		// TODO: mkdirp?
-		fs.writeFileSync(p.outputPath, page, 'utf8');
-
 	});
 });

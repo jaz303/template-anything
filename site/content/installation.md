@@ -1,3 +1,5 @@
 ## Installation
 
-    npm install -g template-anything
+```bash
+npm install -g template-anything
+```
