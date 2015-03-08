@@ -28,6 +28,7 @@
     "tmp": "0.0.24"
   },
   "devDependencies": {
+    "cheerio": "^0.18.0",
     "marked": "^0.3.3",
     "pegjs": "~0.8.0",
     "pygmentize-bundled": "^2.3.0",

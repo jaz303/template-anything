@@ -2,38 +2,38 @@ module.exports = [
 	{	title: "Guide",
 		pages: [
 			{	title: "Introduction",
-				url: "index.htm"
+				url: "index"
 			},
 			{	title: "Installation",
-				url: "installation.htm"
+				url: "installation"
 			},
 			{	title: "Basic Usage",
-				url: "basic-usage.htm"
+				url: "basic-usage"
 			},
 			{	title: "Tutorial",
-				url: "tutorial.htm"
+				url: "tutorial"
 			}
 		]
 	},
 	{	title: "Reference",
 		pages: [
 			{	title: "Terminology",
-				url: "terminology.htm"
+				url: "terminology"
 			},
 			{	title: "Syntax",
-				url: "syntax.htm"
+				url: "syntax"
 			},
 			{	title: "Directives",
-				url: "directives.htm"
+				url: "directives"
 			},
 			{	title: "Functions",
-				url: "functions.htm"
+				url: "functions"
 			},
 			{	title: "Built-in Variables",
-				url: "built-in-variables.htm"
+				url: "built-in-variables"
 			},
 			{	title: "Per-user Defaults",
-				url: "per-user-defaults.htm"
+				url: "per-user-defaults"
 			}
 		]
 	}

@@ -9,5 +9,5 @@
   - [x] syntax highlighting
   - [ ] styling/CSS
   - [x] generate.js should generate a single file
-  - [ ] index page sections
-  - [ ] generate relative URLs
+  - [x] index page sections
+  - [x] generate relative URLs
