@@ -293,6 +293,8 @@ Example: `echo "hello world!"`
 Execute a shell command. The working directory will be the target directory.
 
   * `cmd`: shell command to execute __(required)__
+  * `cwd`: working directory; defaults to the target directory
+  * `echo`: echo subprocess's `stdout` and `stderr`
 
 Example: `shell cmd: "git init && git add . && git commit -m 'Initial'"`
 
