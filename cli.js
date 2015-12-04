@@ -6,10 +6,15 @@ var options = require('docopt').docopt(fs.readFileSync(__dirname + '/usage.txt',
 });
 
 if (options['<template>'] && options['<target>']) {
-    require('./lib/run_template')(options['<template>'], options['<target>'], function(err) {
-        if (err) {
-            process.stderr.write(err.message + "\n");
-            process.exit(1);
-        }
-    });
+    require('./lib/run_template')(
+    	options['<template>'],
+    	options['<target>'],
+        options['--subdir'] || '.',
+    	function(err) {
+	        if (err) {
+	            process.stderr.write(err.message + "\n");
+	            process.exit(1);
+	        }
+    	}
+    );
 }

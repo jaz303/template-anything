@@ -1,6 +1,9 @@
 template-anything
 
 Usage:
-  ta <template> <target>
+  ta <template> <target> [options]
   ta -h, --help
   ta -v, --version
+
+Options:
+  -d <dir>, --subdir <dir>      Subdirectory of template within repository
