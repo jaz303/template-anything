@@ -2,6 +2,7 @@ var test = require('tape');
 var expressions = require('../lib/expressions');
 var parser = require('../lib/parser');
 var Environment = require('../lib/Environment');
+var T = require('../lib/ast_types');
 
 function parse(code) {
 	return parser.parse(code, {startRule: 'ScriptExpression'});
@@ -107,7 +108,7 @@ test("array", function(assert) {
 	var ast = parse('[1,2,3]');
 	var res = expressions.evaluate(env, ast);
 
-	assert.deepEqual(res, [1,2,3]);
+	assert.deepEqual(res, { type: T.ARRAY, elements: [1,2,3] });
 	assert.end();
 
 });
@@ -146,7 +147,7 @@ test("partial pipeline", function(assert) {
 
 	assert.equal(ast, expressions.evaluate(env, ast));
 
-	var res = expressions.pipe(env, ast, 'HELLO');
+	var res = expressions.evalPartialPipeline(env, ast, 'HELLO');
 	assert.equal(res, 'hello');
 
 	assert.end();

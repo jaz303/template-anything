@@ -10,7 +10,7 @@
     "project"
   ],
   "scripts": {
-    "test": "set -e; for t in test/*; do node $t; done"
+    "test": "set -e; for t in test/*.js; do node $t; done"
   },
   "bin": {
     "ta": "./bin/ta"
