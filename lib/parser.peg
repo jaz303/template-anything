@@ -175,7 +175,7 @@ TemplateLoop
     }
 
 TemplateForeach
-    = '{%' _ ForeachKeyword _ k:(variable_name _ ',' _)? v:variable_name InKeyword _ exp:ScriptExpression _ '%}' chunks:FileTemplate {
+    = '{%' _ ForeachKeyword _ k:(variable_name _ ',' _)? v:variable_name _ InKeyword _ exp:ScriptExpression _ '%}' chunks:FileTemplate {
         return mk(T.TEMPLATE_FOREACH, {
             key: k ? k[0] : null,
             value: v,
