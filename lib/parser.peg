@@ -144,6 +144,7 @@ FileTemplate
 FileChunk
     = TemplateExpansion
     / TemplateCondition
+    / TemplateLoop
     / Raw
 
 TemplateExpansion
@@ -166,6 +167,21 @@ TemplateIfClause
 TemplateElseClause
     = '{%' _ ElseKeyword _ '%}' chunks:FileTemplate {
         return chunks;
+    }
+
+TemplateLoop
+    = loop:TemplateForeach TemplateEnd {
+        return loop;
+    }
+
+TemplateForeach
+    = '{%' _ ForeachKeyword _ k:(variable_name _ ',' _)? v:variable_name InKeyword _ exp:ScriptExpression _ '%}' chunks:FileTemplate {
+        return mk(T.TEMPLATE_FOREACH, {
+            key: k ? k[0] : null,
+            value: v,
+            subject: exp,
+            body: chunks
+        });
     }
 
 TemplateEnd
@@ -326,9 +342,12 @@ key
     }
 
 simple_variable
-    = '$' name:$( [a-zA-Z_]i [a-zA-Z0-9_]* ) {
+    = '$' name:variable_name {
         return name;
     }
+
+variable_name
+    = $( [a-zA-Z_]i [a-zA-Z0-9_]* )
 
 member
     = static_member
@@ -343,11 +362,15 @@ static_member
 
 Keyword
     = IfKeyword
+    / InKeyword
     / ThenKeyword
     / ElseKeyword
     / EndKeyword
+    / ForeachKeyword
 
 IfKeyword       = 'if'      !ident_rest
+InKeyword       = 'in'      !ident_rest
 ThenKeyword     = 'then'    !ident_rest
 ElseKeyword     = 'else'    !ident_rest
 EndKeyword      = 'end'     !ident_rest
+ForeachKeyword  = 'foreach' !ident_rest
